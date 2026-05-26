@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Form - Salesman</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Hind:wght@400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #E1F5EE;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --text: #1a1a1a;
+    --muted: #666;
+    --border: #e0e0e0;
+    --bg: #f5f7f5;
+  }
+
+  body {
+    font-family: 'Hind', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  .header {
+    background: var(--green-dark);
+    color: white;
+    padding: 18px 20px 14px;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  .header p {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 14px;
+    margin: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--green-dark);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--green-light);
+  }
+
+  .field { margin-bottom: 14px; }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  label span.req { color: #e53935; margin-left: 2px; }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Hind', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--green);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  .items-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .add-btn {
+    background: var(--green-light);
+    color: var(--green-dark);
+    border: none;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Hind', sans-serif;
+  }
+
+  .item-row {
+    display: grid;
+    grid-template-columns: 1fr 70px 80px 36px;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  .item-row input {
+    padding: 9px 10px;
+    font-size: 14px;
+  }
+
+  .remove-btn {
+    background: #ffebee;
+    color: #c62828;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .item-labels {
+    display: grid;
+    grid-template-columns: 1fr 70px 80px 36px;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .item-labels span {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .total-box {
+    background: var(--green-light);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+  }
+
+  .total-box span:first-child {
+    font-weight: 600;
+    color: var(--green-dark);
+    font-size: 15px;
+  }
+
+  .total-box span:last-child {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green-dark);
+  }
+
+  .submit-btn {
+    width: calc(100% - 32px);
+    margin: 0 16px;
+    padding: 16px;
+    background: var(--green-dark);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--green-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 36px;
+  }
+
+  .success-screen h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 24px;
+    color: var(--green-dark);
+    margin-bottom: 8px;
+  }
+
+  .success-screen p { color: var(--muted); font-size: 15px; margin-bottom: 6px; }
+
+  .new-order-btn {
+    margin-top: 24px;
+    padding: 14px 32px;
+    background: var(--green-dark);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .loading { opacity: 0.6; }
+
+  .error-msg {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin: 0 16px 12px;
+    display: none;
+  }
+
+  .col-label { font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>&#128230; Naya Order</h1>
+  <p>Order details bharo aur submit karo</p>
+</div>
+
+<div id="mainForm">
+
+  <div class="card">
+    <div class="section-title">&#128100; Salesman Info</div>
+    <div class="field">
+      <label>Aapka Naam <span class="req">*</span></label>
+      <input type="text" id="salesman" placeholder="Salesman ka naam" />
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">&#128222; Customer Details</div>
+    <div class="field">
+      <label>Customer ka Naam <span class="req">*</span></label>
+      <input type="text" id="customerName" placeholder="Customer ka poora naam" />
+    </div>
+    <div class="field">
+      <label>Phone Number <span class="req">*</span></label>
+      <input type="tel" id="customerPhone" placeholder="10 digit mobile number" maxlength="10" />
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <div class="items-header">
+        <span>&#128230; Items / Saman</span>
+        <button class="add-btn" onclick="addItem()">+ Item Jodo</button>
+      </div>
+    </div>
+
+    <div class="item-labels">
+      <span class="col-label">Item ka naam</span>
+      <span class="col-label">Qty</span>
+      <span class="col-label">Rate (&#8377;)</span>
+      <span class="col-label"></span>
+    </div>
+
+    <div id="itemsList"></div>
+
+    <div class="total-box">
+      <span>Kul Rakam</span>
+      <span id="totalDisplay">&#8377;0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">&#128203; Additional Info</div>
+    <div class="field">
+      <label>Notes / Remarks (Optional)</label>
+      <textarea id="notes" placeholder="Koi khaas baat ho to likho..."></textarea>
+    </div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitOrder()">
+    &#10003; Order Submit Karo
+  </button>
+
+</div>
+
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">&#10003;</div>
+  <h2>Order Submit Ho Gaya!</h2>
+  <p id="successOrderId"></p>
+  <p>Malik ko notification bhej diya gaya hai.</p>
+  <button class="new-order-btn" onclick="resetForm()">+ Naya Order</button>
+</div>
+
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbzS2g3oO8TljjIrpXZ-t9xc020VrZ-MvIm2c9HfIWPIL-IcZJA9B38kRTMjQTMNN9lT/exec";
+  let items = [];
+
+  function addItem() {
+    const id = Date.now();
+    items.push({ id, name: "", qty: 1, rate: 0 });
+    renderItems();
+  }
+
+  function removeItem(id) {
+    items = items.filter(i => i.id !== id);
+    renderItems();
+  }
+
+  function renderItems() {
+    const container = document.getElementById("itemsList");
+    container.innerHTML = "";
+    items.forEach((item, idx) => {
+      const row = document.createElement("div");
+      row.className = "item-row";
+      row.innerHTML = `
+        <input type="text" placeholder="Item naam" value="${item.name}"
+          oninput="items[${idx}].name=this.value" />
+        <input type="number" placeholder="Qty" value="${item.qty}" min="1"
+          oninput="items[${idx}].qty=parseFloat(this.value)||0; calcTotal()" />
+        <input type="number" placeholder="Rate" value="${item.rate || ''}" min="0"
+          oninput="items[${idx}].rate=parseFloat(this.value)||0; calcTotal()" />
+        <button class="remove-btn" onclick="removeItem(${item.id})">&#215;</button>
+      `;
+      container.appendChild(row);
+    });
+    calcTotal();
+  }
+
+  function calcTotal() {
+    const total = items.reduce((sum, i) => sum + (i.qty * i.rate), 0);
+    document.getElementById("totalDisplay").textContent = "₹" + total.toLocaleString("en-IN");
+    return total;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById("errorMsg");
+    el.textContent = msg;
+    el.style.display = "block";
+    setTimeout(() => el.style.display = "none", 4000);
+  }
+
+  async function submitOrder() {
+    const salesman = document.getElementById("salesman").value.trim();
+    const customerName = document.getElementById("customerName").value.trim();
+    const customerPhone = document.getElementById("customerPhone").value.trim();
+    const notes = document.getElementById("notes").value.trim();
+
+    if (!salesman) return showError("Apna naam bharo!");
+    if (!customerName) return showError("Customer ka naam bharo!");
+    if (!customerPhone || customerPhone.length !== 10) return showError("Sahi phone number bharo (10 digit)!");
+    if (items.length === 0) return showError("Kam se kam ek item jodo!");
+    if (items.some(i => !i.name.trim())) return showError("Saare items ka naam bharo!");
+
+    const total = items.reduce((sum, i) => sum + (i.qty * i.rate), 0);
+    const itemsText = items.map(i => `${i.name} x${i.qty} @₹${i.rate} = ₹${(i.qty * i.rate).toLocaleString("en-IN")}`).join(" | ");
+
+    const btn = document.getElementById("submitBtn");
+    btn.disabled = true;
+    btn.textContent = "Submit ho raha hai...";
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "addOrder",
+          salesman, customerName, customerPhone,
+          items: itemsText,
+          totalAmount: total,
+          notes
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById("mainForm").style.display = "none";
+        document.getElementById("successScreen").style.display = "block";
+        document.getElementById("successOrderId").textContent = "Order ID: " + data.orderId;
+      } else {
+        showError("Kuch galat hua, dobara try karo.");
+        btn.disabled = false;
+        btn.textContent = "✓ Order Submit Karo";
+      }
+    } catch (e) {
+      showError("Internet connection check karo aur dobara try karo.");
+      btn.disabled = false;
+      btn.textContent = "✓ Order Submit Karo";
+    }
+  }
+
+  function resetForm() {
+    document.getElementById("mainForm").style.display = "block";
+    document.getElementById("successScreen").style.display = "none";
+    document.getElementById("salesman").value = "";
+    document.getElementById("customerName").value = "";
+    document.getElementById("customerPhone").value = "";
+    document.getElementById("notes").value = "";
+    items = [];
+    renderItems();
+    document.getElementById("submitBtn").disabled = false;
+    document.getElementById("submitBtn").textContent = "✓ Order Submit Karo";
+  }
+
+  addItem();
+</script>
+</body>
+</html>
