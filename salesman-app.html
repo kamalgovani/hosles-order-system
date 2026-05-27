@@ -6,253 +6,48 @@
 <title>Order Form - Salesman</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Hind:wght@400;500&display=swap');
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --green: #1D9E75;
-    --green-dark: #0F6E56;
-    --green-light: #E1F5EE;
-    --amber: #BA7517;
-    --amber-light: #FAEEDA;
-    --text: #1a1a1a;
-    --muted: #666;
-    --border: #e0e0e0;
-    --bg: #f5f7f5;
+    --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE;
+    --text: #1a1a1a; --muted: #666; --border: #e0e0e0; --bg: #f5f7f5;
   }
-
-  body {
-    font-family: 'Hind', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding-bottom: 40px;
-  }
-
-  .header {
-    background: var(--green-dark);
-    color: white;
-    padding: 18px 20px 14px;
-    text-align: center;
-  }
-
-  .header h1 {
-    font-family: 'Baloo 2', cursive;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-
-  .header p {
-    font-size: 13px;
-    opacity: 0.85;
-    margin-top: 2px;
-  }
-
-  .card {
-    background: white;
-    border-radius: 14px;
-    margin: 16px;
-    padding: 20px;
-    border: 1px solid var(--border);
-  }
-
-  .section-title {
-    font-family: 'Baloo 2', cursive;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--green-dark);
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--green-light);
-  }
-
+  body { font-family: 'Hind', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+  .header { background: var(--green-dark); color: white; padding: 18px 20px 14px; text-align: center; }
+  .header h1 { font-family: 'Baloo 2', cursive; font-size: 22px; font-weight: 700; }
+  .header p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+  .card { background: white; border-radius: 14px; margin: 16px; padding: 20px; border: 1px solid var(--border); }
+  .section-title { font-family: 'Baloo 2', cursive; font-size: 15px; font-weight: 600; color: var(--green-dark); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid var(--green-light); }
   .field { margin-bottom: 14px; }
-
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--muted);
-    margin-bottom: 5px;
-  }
-
-  label span.req { color: #e53935; margin-left: 2px; }
-
-  input, select, textarea {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-family: 'Hind', sans-serif;
-    font-size: 15px;
-    color: var(--text);
-    background: white;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--green);
-  }
-
-  textarea { resize: vertical; min-height: 80px; }
-
-  .items-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-
-  .add-btn {
-    background: var(--green-light);
-    color: var(--green-dark);
-    border: none;
-    padding: 7px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: 'Hind', sans-serif;
-  }
-
-  .item-row {
-    display: grid;
-    grid-template-columns: 1fr 70px 80px 36px;
-    gap: 8px;
-    margin-bottom: 8px;
-    align-items: center;
-  }
-
-  .item-row input {
-    padding: 9px 10px;
-    font-size: 14px;
-  }
-
-  .remove-btn {
-    background: #ffebee;
-    color: #c62828;
-    border: none;
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .item-labels {
-    display: grid;
-    grid-template-columns: 1fr 70px 80px 36px;
-    gap: 8px;
-    margin-bottom: 4px;
-  }
-
-  .item-labels span {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 500;
-  }
-
-  .total-box {
-    background: var(--green-light);
-    border-radius: 10px;
-    padding: 12px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 12px;
-  }
-
-  .total-box span:first-child {
-    font-weight: 600;
-    color: var(--green-dark);
-    font-size: 15px;
-  }
-
-  .total-box span:last-child {
-    font-family: 'Baloo 2', cursive;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--green-dark);
-  }
-
-  .submit-btn {
-    width: calc(100% - 32px);
-    margin: 0 16px;
-    padding: 16px;
-    background: var(--green-dark);
-    color: white;
-    border: none;
-    border-radius: 14px;
-    font-family: 'Baloo 2', cursive;
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: background 0.2s, transform 0.1s;
-  }
-
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 5px; }
+  label span.req { color: #e53935; }
+  input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Hind', sans-serif; font-size: 15px; color: var(--text); background: white; outline: none; transition: border-color 0.2s; -webkit-appearance: none; appearance: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--green); }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  textarea { resize: vertical; min-height: 80px; -webkit-appearance: auto; appearance: auto; }
+  .items-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .add-btn { background: var(--green-light); color: var(--green-dark); border: none; padding: 9px 18px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Hind', sans-serif; }
+  .item-block { background: #f8fbf9; border: 1.5px solid #d4ead9; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .item-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .item-num { font-family: 'Baloo 2', cursive; font-size: 14px; font-weight: 700; color: var(--green-dark); }
+  .remove-btn { background: #ffebee; color: #c62828; border: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Hind', sans-serif; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .two-col .field { margin-bottom: 0; }
+  .item-subtotal { margin-top: 10px; background: var(--green-light); border-radius: 8px; padding: 8px 12px; text-align: right; font-family: 'Baloo 2', cursive; font-size: 15px; font-weight: 700; color: var(--green-dark); }
+  .total-box { background: var(--green-light); border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+  .total-box span:first-child { font-weight: 600; color: var(--green-dark); font-size: 15px; }
+  .total-box span:last-child { font-family: 'Baloo 2', cursive; font-size: 24px; font-weight: 800; color: var(--green-dark); }
+  .submit-btn { width: calc(100% - 32px); margin: 0 16px; padding: 17px; background: var(--green-dark); color: white; border: none; border-radius: 14px; font-family: 'Baloo 2', cursive; font-size: 19px; font-weight: 700; cursor: pointer; transition: transform 0.1s; }
   .submit-btn:active { transform: scale(0.98); }
   .submit-btn:disabled { background: #aaa; cursor: not-allowed; }
-
-  .success-screen {
-    display: none;
-    text-align: center;
-    padding: 60px 20px;
-  }
-
-  .success-icon {
-    width: 80px;
-    height: 80px;
-    background: var(--green-light);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 36px;
-  }
-
-  .success-screen h2 {
-    font-family: 'Baloo 2', cursive;
-    font-size: 24px;
-    color: var(--green-dark);
-    margin-bottom: 8px;
-  }
-
+  .success-screen { display: none; text-align: center; padding: 60px 20px; }
+  .success-icon { width: 90px; height: 90px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 40px; }
+  .success-screen h2 { font-family: 'Baloo 2', cursive; font-size: 26px; color: var(--green-dark); margin-bottom: 8px; }
   .success-screen p { color: var(--muted); font-size: 15px; margin-bottom: 6px; }
-
-  .new-order-btn {
-    margin-top: 24px;
-    padding: 14px 32px;
-    background: var(--green-dark);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-family: 'Baloo 2', cursive;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .loading { opacity: 0.6; }
-
-  .error-msg {
-    background: #ffebee;
-    color: #c62828;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    margin: 0 16px 12px;
-    display: none;
-  }
-
-  .col-label { font-size: 11px; color: var(--muted); }
+  .new-order-btn { margin-top: 24px; padding: 15px 34px; background: var(--green-dark); color: white; border: none; border-radius: 12px; font-family: 'Baloo 2', cursive; font-size: 18px; font-weight: 700; cursor: pointer; }
+  .error-msg { background: #ffebee; color: #c62828; padding: 12px 16px; border-radius: 10px; font-size: 14px; margin: 0 16px 12px; display: none; font-weight: 500; }
+  .loading-bar { text-align: center; padding: 16px; color: var(--muted); font-size: 14px; }
+  .spinner-sm { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -263,7 +58,6 @@
 </div>
 
 <div id="mainForm">
-
   <div class="card">
     <div class="section-title">&#128100; Salesman Info</div>
     <div class="field">
@@ -288,19 +82,11 @@
     <div class="section-title">
       <div class="items-header">
         <span>&#128230; Items / Saman</span>
-        <button class="add-btn" onclick="addItem()">+ Item Jodo</button>
+        <button class="add-btn" id="addItemBtn" onclick="addItem()">+ Item Jodo</button>
       </div>
     </div>
-
-    <div class="item-labels">
-      <span class="col-label">Item ka naam</span>
-      <span class="col-label">Qty</span>
-      <span class="col-label">Rate (&#8377;)</span>
-      <span class="col-label"></span>
-    </div>
-
+    <div id="loadingProducts" class="loading-bar"><span class="spinner-sm"></span>Products load ho rahe hain...</div>
     <div id="itemsList"></div>
-
     <div class="total-box">
       <span>Kul Rakam</span>
       <span id="totalDisplay">&#8377;0</span>
@@ -308,41 +94,83 @@
   </div>
 
   <div class="card">
-    <div class="section-title">&#128203; Additional Info</div>
+    <div class="section-title">&#128203; Notes</div>
     <div class="field">
-      <label>Notes / Remarks (Optional)</label>
-      <textarea id="notes" placeholder="Koi khaas baat ho to likho..."></textarea>
+      <label>Koi khaas baat (Optional)</label>
+      <textarea id="notes" placeholder="Jaise: jaldi chahiye, COD, etc."></textarea>
     </div>
   </div>
 
   <div class="error-msg" id="errorMsg"></div>
-
-  <button class="submit-btn" id="submitBtn" onclick="submitOrder()">
-    &#10003; Order Submit Karo
-  </button>
-
+  <button class="submit-btn" id="submitBtn" onclick="submitOrder()">&#10003; Order Submit Karo</button>
 </div>
 
 <div class="success-screen" id="successScreen">
   <div class="success-icon">&#10003;</div>
   <h2>Order Submit Ho Gaya!</h2>
-  <p id="successOrderId"></p>
-  <p>Malik ko notification bhej diya gaya hai.</p>
+  <p id="successOrderId" style="font-weight:600;color:#0F6E56"></p>
+  <p>Malik ko order pahunch gaya.</p>
   <button class="new-order-btn" onclick="resetForm()">+ Naya Order</button>
 </div>
 
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbzS2g3oO8TljjIrpXZ-t9xc020VrZ-MvIm2c9HfIWPIL-IcZJA9B38kRTMjQTMNN9lT/exec";
   let items = [];
+  let products = [];
+
+  function apiCall(params) {
+    return new Promise((resolve, reject) => {
+      const cbName = "cb_" + Date.now() + "_" + Math.floor(Math.random()*10000);
+      const query = Object.entries({...params, callback: cbName, t: Date.now()})
+        .map(([k,v]) => encodeURIComponent(k)+"="+encodeURIComponent(v)).join("&");
+      const script = document.createElement("script");
+      const timer = setTimeout(() => { cleanup(); reject(new Error("Timeout")); }, 15000);
+      window[cbName] = (data) => { cleanup(); resolve(data); };
+      function cleanup() { clearTimeout(timer); delete window[cbName]; if(script.parentNode) script.parentNode.removeChild(script); }
+      script.onerror = () => { cleanup(); reject(new Error("Error")); };
+      script.src = API_URL + "?" + query;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function loadProducts() {
+    try {
+      const data = await apiCall({ action: "getProducts" });
+      products = (data.success && data.products) ? data.products : [];
+    } catch(e) { products = []; }
+    document.getElementById("loadingProducts").style.display = "none";
+    document.getElementById("addItemBtn").style.display = "inline-block";
+    addItem();
+  }
 
   function addItem() {
-    const id = Date.now();
-    items.push({ id, name: "", qty: 1, rate: 0 });
+    items.push({ id: Date.now(), productId: "", name: "", qty: 1, rate: 0 });
     renderItems();
+    setTimeout(() => {
+      const list = document.getElementById("itemsList");
+      list.lastElementChild && list.lastElementChild.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 100);
   }
 
   function removeItem(id) {
+    if (items.length === 1) return showError("Kam se kam ek item rakhna zaroori hai!");
     items = items.filter(i => i.id !== id);
+    renderItems();
+  }
+
+  function onProductSelect(idx, val) {
+    if (val === "__manual__") {
+      items[idx].productId = "__manual__";
+      items[idx].name = "";
+      items[idx].rate = 0;
+    } else if (val === "") {
+      items[idx].productId = "";
+      items[idx].name = "";
+      items[idx].rate = 0;
+    } else {
+      const prod = products.find(p => p.id === val);
+      if (prod) { items[idx].productId = val; items[idx].name = prod.name; items[idx].rate = parseFloat(prod.price)||0; }
+    }
     renderItems();
   }
 
@@ -350,32 +178,80 @@
     const container = document.getElementById("itemsList");
     container.innerHTML = "";
     items.forEach((item, idx) => {
-      const row = document.createElement("div");
-      row.className = "item-row";
-      row.innerHTML = `
-        <input type="text" placeholder="Item naam" value="${item.name}"
-          oninput="items[${idx}].name=this.value" />
-        <input type="number" placeholder="Qty" value="${item.qty}" min="1"
-          oninput="items[${idx}].qty=parseFloat(this.value)||0; calcTotal()" />
-        <input type="number" placeholder="Rate" value="${item.rate || ''}" min="0"
-          oninput="items[${idx}].rate=parseFloat(this.value)||0; calcTotal()" />
-        <button class="remove-btn" onclick="removeItem(${item.id})">&#215;</button>
+      const subtotal = item.qty * item.rate;
+      const isManual = item.productId === "__manual__" || products.length === 0;
+      const block = document.createElement("div");
+      block.className = "item-block";
+
+      let selectHtml = "";
+      if (products.length > 0) {
+        const opts = products.map(p =>
+          `<option value="${p.id}" ${item.productId===p.id?"selected":""}>${p.name} — ₹${parseFloat(p.price).toLocaleString('en-IN')}</option>`
+        ).join('');
+        selectHtml = `
+          <div class="field">
+            <label>Product chunno</label>
+            <select onchange="onProductSelect(${idx}, this.value)">
+              <option value="">-- Product select karo --</option>
+              ${opts}
+              <option value="__manual__" ${item.productId==="__manual__"?"selected":""}>✏ Khud likhna hai (Manual)</option>
+            </select>
+          </div>`;
+      }
+
+      let manualHtml = "";
+      if (isManual) {
+        manualHtml = `
+          <div class="two-col">
+            <div class="field">
+              <label>Item Naam</label>
+              <input type="text" placeholder="Naam likho" value="${item.name}"
+                oninput="items[${idx}].name=this.value" />
+            </div>
+            <div class="field">
+              <label>Rate (&#8377;)</label>
+              <input type="number" placeholder="0" value="${item.rate||''}" min="0"
+                oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()" />
+            </div>
+          </div>`;
+      }
+
+      block.innerHTML = `
+        <div class="item-block-header">
+          <span class="item-num">&#128230; Item ${idx+1}</span>
+          <button class="remove-btn" onclick="removeItem(${item.id})">&#215; Hatao</button>
+        </div>
+        ${selectHtml}
+        ${manualHtml}
+        <div class="two-col" style="margin-top:${selectHtml||manualHtml?'10px':'0'}">
+          <div class="field">
+            <label>Quantity</label>
+            <input type="number" placeholder="1" value="${item.qty}" min="1"
+              oninput="items[${idx}].qty=parseFloat(this.value)||0;renderItems()" />
+          </div>
+          <div class="field">
+            <label>Rate (&#8377;)</label>
+            <input type="number" placeholder="0" value="${item.rate||''}" min="0" ${!isManual&&item.productId&&item.productId!="__manual__"?'readonly style="background:#f0f0f0"':''}
+              oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()" />
+          </div>
+        </div>
+        ${subtotal>0?`<div class="item-subtotal">= &#8377;${subtotal.toLocaleString('en-IN')}</div>`:''}
       `;
-      container.appendChild(row);
+      container.appendChild(block);
     });
     calcTotal();
   }
 
   function calcTotal() {
-    const total = items.reduce((sum, i) => sum + (i.qty * i.rate), 0);
+    const total = items.reduce((s,i) => s+(i.qty*i.rate), 0);
     document.getElementById("totalDisplay").textContent = "₹" + total.toLocaleString("en-IN");
     return total;
   }
 
   function showError(msg) {
     const el = document.getElementById("errorMsg");
-    el.textContent = msg;
-    el.style.display = "block";
+    el.textContent = msg; el.style.display = "block";
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
     setTimeout(() => el.style.display = "none", 4000);
   }
 
@@ -384,62 +260,52 @@
     const customerName = document.getElementById("customerName").value.trim();
     const customerPhone = document.getElementById("customerPhone").value.trim();
     const notes = document.getElementById("notes").value.trim();
-
     if (!salesman) return showError("Apna naam bharo!");
     if (!customerName) return showError("Customer ka naam bharo!");
-    if (!customerPhone || customerPhone.length !== 10) return showError("Sahi phone number bharo (10 digit)!");
+    if (!customerPhone || customerPhone.length !== 10) return showError("Sahi 10 digit phone number bharo!");
     if (items.length === 0) return showError("Kam se kam ek item jodo!");
-    if (items.some(i => !i.name.trim())) return showError("Saare items ka naam bharo!");
+    if (items.some(i => !i.name.trim())) return showError("Saare items ka naam / product select karo!");
+    if (items.some(i => i.rate <= 0)) return showError("Saare items ki rate bharo!");
 
-    const total = items.reduce((sum, i) => sum + (i.qty * i.rate), 0);
-    const itemsText = items.map(i => `${i.name} x${i.qty} @₹${i.rate} = ₹${(i.qty * i.rate).toLocaleString("en-IN")}`).join(" | ");
+    const total = items.reduce((s,i) => s+(i.qty*i.rate), 0);
+    const itemsText = items.map(i => `${i.name} x${i.qty} @₹${i.rate} = ₹${(i.qty*i.rate).toLocaleString("en-IN")}`).join(" | ");
 
     const btn = document.getElementById("submitBtn");
-    btn.disabled = true;
-    btn.textContent = "Submit ho raha hai...";
+    btn.disabled = true; btn.textContent = "Submit ho raha hai...";
 
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "addOrder",
-          salesman, customerName, customerPhone,
-          items: itemsText,
-          totalAmount: total,
-          notes
-        })
+      const data = await apiCall({
+        action: "addOrder", salesman, customerName, customerPhone,
+        items: itemsText, totalAmount: total, notes
       });
-      const data = await res.json();
       if (data.success) {
         document.getElementById("mainForm").style.display = "none";
         document.getElementById("successScreen").style.display = "block";
         document.getElementById("successOrderId").textContent = "Order ID: " + data.orderId;
+        window.scrollTo(0,0);
       } else {
         showError("Kuch galat hua, dobara try karo.");
-        btn.disabled = false;
-        btn.textContent = "✓ Order Submit Karo";
+        btn.disabled = false; btn.textContent = "✓ Order Submit Karo";
       }
-    } catch (e) {
+    } catch(e) {
       showError("Internet connection check karo aur dobara try karo.");
-      btn.disabled = false;
-      btn.textContent = "✓ Order Submit Karo";
+      btn.disabled = false; btn.textContent = "✓ Order Submit Karo";
     }
   }
 
   function resetForm() {
     document.getElementById("mainForm").style.display = "block";
     document.getElementById("successScreen").style.display = "none";
-    document.getElementById("salesman").value = "";
-    document.getElementById("customerName").value = "";
-    document.getElementById("customerPhone").value = "";
-    document.getElementById("notes").value = "";
+    ["salesman","customerName","customerPhone","notes"].forEach(id => document.getElementById(id).value = "");
     items = [];
-    renderItems();
     document.getElementById("submitBtn").disabled = false;
     document.getElementById("submitBtn").textContent = "✓ Order Submit Karo";
+    addItem();
+    window.scrollTo(0,0);
   }
 
-  addItem();
+  document.getElementById("addItemBtn").style.display = "none";
+  loadProducts();
 </script>
 </body>
 </html>
