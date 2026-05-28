@@ -18,37 +18,51 @@
   .tab{flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;font-family:'Hind',sans-serif;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
   .tab.active{color:var(--gd);border-bottom-color:var(--gd)}
   .page{display:none}.page.active{display:block}
+
+  /* Stats */
   .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px}
   .stat-card{background:white;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center}
   .stat-card .num{font-family:'Baloo 2',cursive;font-size:24px;font-weight:800;color:var(--gd);line-height:1}
   .stat-card .lbl{font-size:11px;color:var(--muted);margin-top:3px}
-  .filters{padding:0 14px 10px;display:flex;gap:7px;flex-wrap:wrap}
+
+  /* Date filter bar */
+  .date-bar{padding:0 14px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .date-chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:white;font-family:'Hind',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s}
+  .date-chip.active{background:var(--gd);color:white;border-color:var(--gd)}
+  .date-input{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:white;font-family:'Hind',sans-serif;font-size:13px;color:var(--text);outline:none;cursor:pointer}
+  .date-input:focus{border-color:var(--gd)}
+
+  /* Status filter */
+  .status-bar{padding:0 14px 10px;display:flex;gap:7px;flex-wrap:wrap}
   .filter-btn{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:white;font-family:'Hind',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted)}
   .filter-btn.active{background:var(--gd);color:white;border-color:var(--gd)}
+
+  /* Orders */
   .orders-list{padding:0 14px 80px}
-  .order-card{background:white;border-radius:14px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden}
-  .order-top{padding:12px 14px 8px;display:flex;justify-content:space-between;align-items:flex-start}
-  .order-id{font-family:'Baloo 2',cursive;font-size:12px;font-weight:700;color:var(--gd)}
-  .order-date{font-size:10px;color:var(--muted);margin-top:1px}
-  .status-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+  .order-card{background:white;border-radius:12px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden;display:flex;align-items:stretch}
+  .order-left-bar{width:5px;flex-shrink:0}
+  .bar-Pending{background:var(--amber)}.bar-Confirmed{background:var(--blue)}.bar-Delivered{background:var(--gd)}.bar-Cancelled{background:var(--red)}
+  .order-body{flex:1;padding:13px 14px}
+  .order-row1{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+  .shop-name{font-size:16px;font-weight:700;color:var(--text)}
+  .order-amount{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;color:var(--gd)}
+  .order-row2{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .order-meta{font-size:12px;color:var(--muted);line-height:1.6}
+  .order-meta span{display:inline-block;margin-right:10px}
+  .status-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;flex-shrink:0}
   .status-Pending{background:var(--al);color:var(--amber)}.status-Confirmed{background:var(--bl);color:var(--blue)}
   .status-Delivered{background:var(--gl);color:var(--gd)}.status-Cancelled{background:var(--rl);color:var(--red)}
-  .order-customer{padding:0 14px 6px}.order-customer .cname{font-size:15px;font-weight:600}
-  .order-customer .cphone{font-size:12px;color:var(--muted)}
-  .order-salesman{padding:0 14px 6px;font-size:11px;color:var(--muted)}
-  .order-items{background:#fafafa;border-top:1px solid var(--border);padding:8px 14px;font-size:12px;color:var(--muted);line-height:1.6}
-  .order-footer{padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border)}
-  .order-total{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;color:var(--gd)}
-  .action-btns{display:flex;gap:7px}
-  .btn-bill{background:var(--gd);color:white;border:none;padding:7px 12px;border-radius:8px;font-family:'Hind',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
-  .btn-status{background:white;color:var(--blue);border:1.5px solid var(--blue);padding:7px 12px;border-radius:8px;font-family:'Hind',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
-  /* Manage page shared */
+  .order-actions{display:flex;gap:7px;justify-content:flex-end}
+  .btn-bill{background:var(--gd);color:white;border:none;padding:7px 14px;border-radius:8px;font-family:'Hind',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
+  .btn-status{background:white;color:var(--blue);border:1.5px solid var(--blue);padding:7px 14px;border-radius:8px;font-family:'Hind',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
+
+  /* Manage pages */
   .manage-page{padding:14px}
   .add-card{background:white;border-radius:14px;border:1px solid var(--border);padding:18px;margin-bottom:14px}
   .add-card h3{font-family:'Baloo 2',cursive;font-size:16px;font-weight:700;color:var(--gd);margin-bottom:14px}
   .input-row{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
   .input-row input{flex:1;min-width:110px;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:'Hind',sans-serif;font-size:14px;outline:none}
-  .input-row input:focus{border-color:var(--green)}
+  .input-row input:focus{border-color:var(--gd)}
   .green-btn{background:var(--gd);color:white;border:none;padding:11px 18px;border-radius:10px;font-family:'Hind',sans-serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
   .green-btn:disabled{background:#aaa;cursor:not-allowed}
   .list-card{background:white;border-radius:14px;border:1px solid var(--border);overflow:hidden}
@@ -57,10 +71,10 @@
   .list-item:last-child{border-bottom:none}
   .list-item-name{font-size:15px;font-weight:600}
   .list-item-sub{font-size:12px;color:var(--muted);margin-top:2px}
-  .list-item-right{display:flex;align-items:center;gap:12px}
   .price-tag{font-family:'Baloo 2',cursive;font-size:16px;font-weight:700;color:var(--gd)}
   .del-btn{background:var(--rl);color:var(--red);border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif}
   .empty-list{padding:30px;text-align:center;color:var(--muted);font-size:14px}
+
   /* Modal */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;justify-content:center;align-items:center;padding:20px}
   .modal{background:white;border-radius:16px;padding:22px;width:100%;max-width:360px}
@@ -69,14 +83,14 @@
   .modal-btns{display:flex;gap:10px}
   .modal-btns button{flex:1;padding:11px;border-radius:10px;font-family:'Hind',sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:none}
   .btn-save{background:var(--gd);color:white}.btn-cancel{background:#f0f0f0;color:var(--text)}
-  /* Loading */
+
   .loading-screen{text-align:center;padding:60px 20px;color:var(--muted)}
   .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
   @keyframes spin{to{transform:rotate(360deg)}}
   .empty-state{text-align:center;padding:50px 20px;color:var(--muted);display:none}
-  .error-banner{background:var(--rl);color:var(--red);padding:10px 14px;font-size:13px;display:none;margin:10px 14px 0;border-radius:10px}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:white;padding:11px 22px;border-radius:10px;font-size:13px;display:none;z-index:200;white-space:nowrap}
   .toast.green{background:var(--gd)}.toast.red{background:var(--red)}.toast.gray{background:#333}
+  .count-badge{background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px}
 </style>
 </head>
 <body>
@@ -90,39 +104,50 @@
   <button class="tab" id="tab-products" onclick="switchTab('products')">&#127381; Products</button>
 </div>
 
-<!-- ORDERS -->
+<!-- ORDERS PAGE -->
 <div class="page active" id="page-orders">
   <div id="loadingScreen" class="loading-screen"><div class="spinner"></div><p>Orders load ho rahe hain...</p></div>
   <div id="ordersContent" style="display:none">
     <div class="stats-row">
-      <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">Kul Orders</div></div>
+      <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">Aaj ke Orders</div></div>
       <div class="stat-card"><div class="num" id="statPending">0</div><div class="lbl">Pending</div></div>
-      <div class="stat-card"><div class="num" id="statRevenue">&#8377;0</div><div class="lbl">Kul Rakam</div></div>
+      <div class="stat-card"><div class="num" id="statRevenue">&#8377;0</div><div class="lbl">Aaj ka Rakam</div></div>
     </div>
-    <div class="error-banner" id="errorBanner"></div>
-    <div class="filters">
-      <button class="filter-btn active" onclick="filterOrders('All',this)">Sab</button>
-      <button class="filter-btn" onclick="filterOrders('Pending',this)">Pending</button>
-      <button class="filter-btn" onclick="filterOrders('Confirmed',this)">Confirmed</button>
-      <button class="filter-btn" onclick="filterOrders('Delivered',this)">Delivered</button>
-      <button class="filter-btn" onclick="filterOrders('Cancelled',this)">Cancelled</button>
+
+    <!-- Date filter -->
+    <div class="date-bar">
+      <button class="date-chip active" id="chip-today" onclick="setDateFilter('today',this)">Aaj</button>
+      <button class="date-chip" id="chip-yesterday" onclick="setDateFilter('yesterday',this)">Kal</button>
+      <button class="date-chip" id="chip-week" onclick="setDateFilter('week',this)">Is Hafte</button>
+      <button class="date-chip" id="chip-all" onclick="setDateFilter('all',this)">Sab</button>
+      <input type="date" class="date-input" id="customDate" onchange="setDateFilter('custom',null)" title="Koi bhi din chunno" />
     </div>
+
+    <!-- Status filter -->
+    <div class="status-bar">
+      <button class="filter-btn active" onclick="setStatusFilter('All',this)">Sab</button>
+      <button class="filter-btn" onclick="setStatusFilter('Pending',this)">Pending</button>
+      <button class="filter-btn" onclick="setStatusFilter('Confirmed',this)">Confirmed</button>
+      <button class="filter-btn" onclick="setStatusFilter('Delivered',this)">Delivered</button>
+      <button class="filter-btn" onclick="setStatusFilter('Cancelled',this)">Cancelled</button>
+    </div>
+
     <div class="orders-list" id="ordersList"></div>
-    <div class="empty-state" id="emptyState"><p style="font-size:36px">&#128230;</p><p style="margin-top:10px">Koi order nahi mila</p></div>
+    <div class="empty-state" id="emptyState"><p style="font-size:36px">&#128230;</p><p style="margin-top:10px;font-size:15px">Is din koi order nahi mila</p></div>
   </div>
 </div>
 
-<!-- SHOPS -->
+<!-- SHOPS PAGE -->
 <div class="page" id="page-shops">
   <div class="manage-page">
     <div class="add-card">
       <h3>&#43; Naya Shop / Customer Jodo</h3>
       <div class="input-row" style="margin-bottom:10px">
-        <input type="text" id="newShopName" placeholder="Shop ka naam *" style="flex:2;min-width:160px" />
+        <input type="text" id="newShopName" placeholder="Shop ka naam *" style="flex:2;min-width:160px"/>
       </div>
       <div class="input-row">
-        <input type="tel" id="newShopPhone" placeholder="Phone number" maxlength="10" />
-        <input type="text" id="newShopAddress" placeholder="Address (optional)" />
+        <input type="tel" id="newShopPhone" placeholder="Phone number" maxlength="10"/>
+        <input type="text" id="newShopAddress" placeholder="Address (optional)"/>
         <button class="green-btn" id="addShopBtn" onclick="addShop()">&#10003; Jodo</button>
       </div>
     </div>
@@ -133,14 +158,14 @@
   </div>
 </div>
 
-<!-- PRODUCTS -->
+<!-- PRODUCTS PAGE -->
 <div class="page" id="page-products">
   <div class="manage-page">
     <div class="add-card">
       <h3>&#43; Naya Product Jodo</h3>
       <div class="input-row">
-        <input type="text" id="newProdName" placeholder="Product ka naam *" style="flex:2" />
-        <input type="number" id="newProdPrice" placeholder="Price &#8377;" min="0" />
+        <input type="text" id="newProdName" placeholder="Product ka naam *" style="flex:2"/>
+        <input type="number" id="newProdPrice" placeholder="Price &#8377;" min="0"/>
         <button class="green-btn" id="addProdBtn" onclick="addProduct()">&#10003; Jodo</button>
       </div>
     </div>
@@ -172,6 +197,7 @@
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbzS2g3oO8TljjIrpXZ-t9xc020VrZ-MvIm2c9HfIWPIL-IcZJA9B38kRTMjQTMNN9lT/exec";
 let allOrders=[],editingOrderId=null,currentTab='orders';
+let activeDateFilter='today', activeStatusFilter='All';
 
 function apiCall(params){
   return new Promise((resolve,reject)=>{
@@ -184,6 +210,30 @@ function apiCall(params){
     s.onerror=()=>{cleanup();reject(new Error("Error"))};
     s.src=API_URL+"?"+q;document.head.appendChild(s);
   });
+}
+
+function toLocalDateStr(dateStr){
+  // parse date from order string like "28/5/2026, 3:54:52 pm"
+  try{
+    const parts=dateStr.split(", ")[0].split("/");
+    const d=parseInt(parts[0]),m=parseInt(parts[1])-1,y=parseInt(parts[2]);
+    return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+  }catch(e){return "";}
+}
+
+function todayStr(){
+  const n=new Date();
+  return n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0");
+}
+
+function yesterdayStr(){
+  const n=new Date();n.setDate(n.getDate()-1);
+  return n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0");
+}
+
+function weekStartStr(){
+  const n=new Date();n.setDate(n.getDate()-6);
+  return n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0");
 }
 
 function switchTab(tab){
@@ -202,28 +252,76 @@ function refreshCurrent(){
   else loadProducts();
 }
 
+/* ---- DATE & STATUS FILTER ---- */
+function setDateFilter(type, btn){
+  activeDateFilter=type;
+  document.querySelectorAll('.date-chip').forEach(c=>c.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  else{ document.querySelectorAll('.date-chip').forEach(c=>c.classList.remove('active')); }
+  applyFilters();
+}
+
+function setStatusFilter(status, btn){
+  activeStatusFilter=status;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters(){
+  let filtered=[...allOrders];
+  // Date filter
+  const today=todayStr(), yesterday=yesterdayStr(), weekStart=weekStartStr();
+  const customDate=document.getElementById("customDate").value;
+  if(activeDateFilter==='today'){
+    filtered=filtered.filter(o=>toLocalDateStr(o["Date"]||"")===today);
+  } else if(activeDateFilter==='yesterday'){
+    filtered=filtered.filter(o=>toLocalDateStr(o["Date"]||"")===yesterday);
+  } else if(activeDateFilter==='week'){
+    filtered=filtered.filter(o=>{const d=toLocalDateStr(o["Date"]||"");return d>=weekStart&&d<=today;});
+  } else if(activeDateFilter==='custom'&&customDate){
+    filtered=filtered.filter(o=>toLocalDateStr(o["Date"]||"")===customDate);
+  }
+  // Status filter
+  if(activeStatusFilter!=='All') filtered=filtered.filter(o=>o["Status"]===activeStatusFilter);
+  renderOrders(filtered);
+  updateStats(filtered);
+}
+
 /* ---- ORDERS ---- */
 async function loadOrders(){
   document.getElementById("loadingScreen").style.display="block";
   document.getElementById("ordersContent").style.display="none";
   try{
     const d=await apiCall({action:"getOrders"});
-    if(d.success){allOrders=(d.orders||[]).reverse();updateStats();renderOrders(allOrders);}
-  }catch(e){showToast("Orders load nahi hue.","red");}
+    if(d.success){ allOrders=(d.orders||[]).reverse(); applyFilters(); }
+  }catch(e){showToast("Orders load nahi hue. Refresh karo.","red");}
   document.getElementById("loadingScreen").style.display="none";
   document.getElementById("ordersContent").style.display="block";
 }
 
-function updateStats(){
-  document.getElementById("statTotal").textContent=allOrders.length;
-  document.getElementById("statPending").textContent=allOrders.filter(o=>o["Status"]==="Pending").length;
-  const rev=allOrders.filter(o=>o["Status"]!=="Cancelled").reduce((s,o)=>s+(parseFloat(o["Total Amount"])||0),0);
-  document.getElementById("statRevenue").textContent="₹"+Math.round(rev).toLocaleString("en-IN");
+function getAmt(o){
+  // Try exact key first
+  if(o["Total Amount"]!==undefined && o["Total Amount"]!==""){const v=parseFloat(o["Total Amount"]);if(!isNaN(v))return v;}
+  // Try all keys containing 'amount'
+  for(const k of Object.keys(o)){
+    if(k.toLowerCase().indexOf("amount")>-1){
+      const v=parseFloat(o[k]);
+      if(!isNaN(v)&&v>0) return v;
+    }
+  }
+  // Last resort: return the 7th column value (index 6) which is totalAmount in our sheet
+  const vals=Object.values(o);
+  if(vals[6]!==undefined){const v=parseFloat(vals[6]);if(!isNaN(v))return v;}
+  return 0;
 }
 
-function filterOrders(status,btn){
-  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");
-  renderOrders(status==="All"?allOrders:allOrders.filter(o=>o["Status"]===status));
+function updateStats(filtered){
+  const todayOrders=allOrders.filter(o=>toLocalDateStr(o["Date"]||"")===todayStr());
+  document.getElementById("statTotal").textContent=todayOrders.length;
+  document.getElementById("statPending").textContent=todayOrders.filter(o=>o["Status"]==="Pending").length;
+  const rev=todayOrders.filter(o=>o["Status"]!=="Cancelled").reduce((s,o)=>s+getAmt(o),0);
+  document.getElementById("statRevenue").textContent="₹"+Math.round(rev).toLocaleString("en-IN");
 }
 
 function renderOrders(orders){
@@ -231,27 +329,43 @@ function renderOrders(orders){
   c.innerHTML="";
   if(!orders||orders.length===0){e.style.display="block";return;}
   e.style.display="none";
-  orders.forEach(o=>{
-    const card=document.createElement("div");card.className="order-card";
-    const status=o["Status"]||"Pending",items=o["Items"]||"—";
-    card.innerHTML=`
-      <div class="order-top">
-        <div><div class="order-id">${o["Order ID"]||"—"}</div><div class="order-date">${o["Date"]||"—"}</div></div>
+  orders.forEach((o,idx)=>{
+    const status=o["Status"]||"Pending";
+    const dateStr=o["Date"]||"—";
+    const dateParts=dateStr.split(", ");
+    const niceDate=dateParts[0]||"";
+    const niceTime=dateParts[1]||"";
+    const amt = getAmt(o);
+    const amtStr = Math.round(amt).toLocaleString("en-IN");
+    // Store order in global for bill access
+    window._orderCache = window._orderCache||{};
+    window._orderCache[o["Order ID"]] = o;
+    const card=document.createElement("div");
+    card.className="order-card";
+    // Build card without inline JSON to avoid HTML breaking
+    const body = document.createElement("div"); body.className="order-body";
+    body.innerHTML=`
+      <div class="order-row1">
+        <div class="shop-name">${o["Customer Name"]||"—"}</div>
+        <div class="order-amount">&#8377;${amtStr}</div>
+      </div>
+      <div class="order-meta">
+        <span>&#128197; ${niceDate}</span>
+        <span style="margin-left:8px">&#128336; ${niceTime}</span>
+      </div>
+      <div class="order-meta" style="margin-top:3px">
+        <span>&#128203; ${o["Order ID"]||"—"}</span>
+        <span style="margin-left:8px">&#128100; ${o["Salesman"]||"—"}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
         <span class="status-badge status-${status}">${status}</span>
-      </div>
-      <div class="order-customer">
-        <div class="cname">${o["Customer Name"]||"—"}</div>
-        <div class="cphone">&#128222; ${o["Customer Phone"]||"—"}</div>
-      </div>
-      <div class="order-salesman">&#128100; ${o["Salesman"]||"—"}${o["Notes"]?" | "+o["Notes"]:""}</div>
-      <div class="order-items">${items.length>120?items.substring(0,120)+"...":items}</div>
-      <div class="order-footer">
-        <div class="order-total">&#8377;${Math.round(parseFloat(o["Total Amount"])||0).toLocaleString("en-IN")}</div>
-        <div class="action-btns">
-          <button class="btn-status" onclick='openStatusModal("${o["Order ID"]}","${status}")'>Status</button>
-          <button class="btn-bill" onclick='generateBill(${JSON.stringify(o).replace(/'/g,"&#39;")})'>&#128196; Bill</button>
+        <div class="order-actions">
+          <button class="btn-status" onclick="openStatusModal('${o["Order ID"]}','${status}')">Status</button>
+          <button class="btn-bill" onclick="generateBill(window._orderCache['${o["Order ID"]}'])">&#128196; Bill</button>
         </div>
       </div>`;
+    const bar = document.createElement("div"); bar.className="order-left-bar bar-"+status;
+    card.appendChild(bar); card.appendChild(body);
     c.appendChild(card);
   });
 }
@@ -272,13 +386,12 @@ async function loadShops(){
   try{
     const d=await apiCall({action:"getShops"});
     if(d.success) renderShops(d.shops||[]);
-    else showToast("Shops load nahi hue.","red");
-  }catch(e){document.getElementById("shopsList").innerHTML='<div class="empty-list">Load nahi hua. Refresh karo.</div>';}
+  }catch(e){document.getElementById("shopsList").innerHTML='<div class="empty-list">Load nahi hua.</div>';}
 }
 
 function renderShops(shops){
   const c=document.getElementById("shopsList");
-  if(!shops||shops.length===0){c.innerHTML='<div class="empty-list">&#127978; Abhi koi shop nahi.<br>Upar se pehli shop jodo!</div>';return;}
+  if(!shops||shops.length===0){c.innerHTML='<div class="empty-list">&#127978; Koi shop nahi. Upar se jodo!</div>';return;}
   c.innerHTML=shops.map(s=>`
     <div class="list-item">
       <div>
@@ -294,26 +407,19 @@ async function addShop(){
   const phone=document.getElementById("newShopPhone").value.trim();
   const address=document.getElementById("newShopAddress").value.trim();
   if(!name) return showToast("Shop ka naam bharo!","red");
-  const btn=document.getElementById("addShopBtn");
-  btn.disabled=true;btn.textContent="Jod raha hai...";
+  const btn=document.getElementById("addShopBtn");btn.disabled=true;btn.textContent="Jod raha hai...";
   try{
     const d=await apiCall({action:"addShop",name,phone,address});
-    if(d.success){
-      document.getElementById("newShopName").value="";
-      document.getElementById("newShopPhone").value="";
-      document.getElementById("newShopAddress").value="";
-      showToast("Shop add ho gayi! ✓","green");loadShops();
-    } else showToast("Nahi hua: "+(d.message||""),"red");
-  }catch(e){showToast("Error. Dobara try karo.","red");}
+    if(d.success){["newShopName","newShopPhone","newShopAddress"].forEach(id=>document.getElementById(id).value="");showToast("Shop add ho gayi! ✓","green");loadShops();}
+    else showToast("Nahi hua.","red");
+  }catch(e){showToast("Error.","red");}
   btn.disabled=false;btn.textContent="✓ Jodo";
 }
 
 async function deleteShop(id){
   if(!confirm("Yeh shop delete karna chahte ho?")) return;
-  try{const d=await apiCall({action:"deleteShop",id});
-    if(d.success){showToast("Shop hata di!","green");loadShops();}
-    else showToast("Delete nahi hua.","red");
-  }catch(e){showToast("Error.","red");}
+  try{const d=await apiCall({action:"deleteShop",id});if(d.success){showToast("Shop hata di!","green");loadShops();}else showToast("Delete nahi hua.","red");}
+  catch(e){showToast("Error.","red");}
 }
 
 /* ---- PRODUCTS ---- */
@@ -322,17 +428,16 @@ async function loadProducts(){
   try{
     const d=await apiCall({action:"getProducts"});
     if(d.success) renderProducts(d.products||[]);
-    else showToast("Products load nahi hue.","red");
   }catch(e){document.getElementById("productsList").innerHTML='<div class="empty-list">Load nahi hua.</div>';}
 }
 
 function renderProducts(products){
   const c=document.getElementById("productsList");
-  if(!products||products.length===0){c.innerHTML='<div class="empty-list">&#128230; Koi product nahi. Upar se jodo!</div>';return;}
+  if(!products||products.length===0){c.innerHTML='<div class="empty-list">Koi product nahi. Upar se jodo!</div>';return;}
   c.innerHTML=products.map(p=>`
     <div class="list-item">
       <div class="list-item-name">${p.name}</div>
-      <div class="list-item-right">
+      <div style="display:flex;align-items:center;gap:12px">
         <div class="price-tag">&#8377;${parseFloat(p.price||0).toLocaleString('en-IN')}</div>
         <button class="del-btn" onclick="deleteProduct('${p.id}')">&#128465; Hatao</button>
       </div>
@@ -344,11 +449,10 @@ async function addProduct(){
   const price=document.getElementById("newProdPrice").value.trim();
   if(!name) return showToast("Product ka naam bharo!","red");
   if(!price||parseFloat(price)<=0) return showToast("Sahi price daalo!","red");
-  const btn=document.getElementById("addProdBtn");
-  btn.disabled=true;btn.textContent="Jod raha hai...";
+  const btn=document.getElementById("addProdBtn");btn.disabled=true;btn.textContent="Jod raha hai...";
   try{
     const d=await apiCall({action:"addProduct",name,price:parseFloat(price)});
-    if(d.success){document.getElementById("newProdName").value="";document.getElementById("newProdPrice").value="";showToast("Product add ho gaya! ✓","green");loadProducts();}
+    if(d.success){["newProdName","newProdPrice"].forEach(id=>document.getElementById(id).value="");showToast("Product add ho gaya! ✓","green");loadProducts();}
     else showToast("Nahi hua.","red");
   }catch(e){showToast("Error.","red");}
   btn.disabled=false;btn.textContent="✓ Jodo";
@@ -356,10 +460,8 @@ async function addProduct(){
 
 async function deleteProduct(id){
   if(!confirm("Yeh product delete karna chahte ho?")) return;
-  try{const d=await apiCall({action:"deleteProduct",id});
-    if(d.success){showToast("Product hata diya!","green");loadProducts();}
-    else showToast("Delete nahi hua.","red");
-  }catch(e){showToast("Error.","red");}
+  try{const d=await apiCall({action:"deleteProduct",id});if(d.success){showToast("Product hata diya!","green");loadProducts();}else showToast("Delete nahi hua.","red");}
+  catch(e){showToast("Error.","red");}
 }
 
 /* ---- BILL ---- */
@@ -389,7 +491,7 @@ function generateBill(order){
   doc.setDrawColor(...teal);doc.line(10,y,138,y);y+=6;
   doc.setFillColor(...teal);doc.rect(80,y-1,58,10,"F");
   doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(11);
-  doc.text("TOTAL: Rs."+Math.round(parseFloat(order["Total Amount"])||0).toLocaleString("en-IN"),83,y+6);
+  doc.text("TOTAL: Rs."+Math.round(parseFloat(order["Total Amount"]||order["total Amount"]||order["totalAmount"]||order["amount"]||0)).toLocaleString("en-IN"),83,y+6);
   y+=16;if(order["Notes"]){doc.setTextColor(...gray);doc.setFont("helvetica","italic");doc.setFontSize(8);doc.text("Note: "+order["Notes"],10,y);y+=8;}
   y+=6;doc.setTextColor(...gray);doc.setFont("helvetica","normal");doc.setFontSize(8);
   doc.text("Status: "+(order["Status"]||"Pending"),10,y);doc.text("Thank you for your business!",80,y);
