@@ -301,18 +301,17 @@ async function loadOrders(){
 }
 
 function getAmt(o){
-  // Try exact key first
-  if(o["Total Amount"]!==undefined && o["Total Amount"]!==""){const v=parseFloat(o["Total Amount"]);if(!isNaN(v))return v;}
-  // Try all keys containing 'amount'
+  // Sheet columns: Order ID, Date, Salesman, Customer Name, Customer Phone, Items, Total Amount, Status, Notes
+  // "Total Amount" is column G (index 6 in 0-based object values)
+  const vals=Object.values(o);
+  // Index 6 = Total Amount
+  if(vals[6]!==undefined && vals[6]!==""){const v=parseFloat(vals[6]);if(!isNaN(v))return v;}
+  // Fallback: try by key name
   for(const k of Object.keys(o)){
-    if(k.toLowerCase().indexOf("amount")>-1){
-      const v=parseFloat(o[k]);
-      if(!isNaN(v)&&v>0) return v;
+    if(k.trim()==="Total Amount"||k.trim()==="totalAmount"){
+      const v=parseFloat(o[k]);if(!isNaN(v))return v;
     }
   }
-  // Last resort: return the 7th column value (index 6) which is totalAmount in our sheet
-  const vals=Object.values(o);
-  if(vals[6]!==undefined){const v=parseFloat(vals[6]);if(!isNaN(v))return v;}
   return 0;
 }
 
@@ -464,38 +463,191 @@ async function deleteProduct(id){
   catch(e){showToast("Error.","red");}
 }
 
-/* ---- BILL ---- */
+/* ---- BILL - MEET ENTERPRISE FORMAT ---- */
 function generateBill(order){
-  const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a5"});
-  const teal=[15,110,86],lg=[225,245,238],gray=[100,100,100],black=[26,26,26];
-  doc.setFillColor(...teal);doc.rect(0,0,148,28,"F");
-  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text("HOSLES",10,12);
-  doc.setFontSize(9);doc.setFont("helvetica","normal");doc.text("TAX INVOICE / BILL",10,19);
-  doc.setFontSize(8);doc.text("Order ID: "+(order["Order ID"]||""),10,25);doc.text("Date: "+(order["Date"]||""),90,25);
-  doc.setFillColor(...lg);doc.rect(0,28,148,22,"F");
-  doc.setTextColor(...black);doc.setFont("helvetica","bold");doc.setFontSize(10);doc.text("CUSTOMER",10,36);
-  doc.setFont("helvetica","normal");doc.text(order["Customer Name"]||"",10,42);
-  doc.setTextColor(...gray);doc.setFontSize(9);doc.text("Phone: "+(order["Customer Phone"]||""),10,47);
-  doc.setTextColor(...black);doc.setFont("helvetica","bold");doc.setFontSize(10);doc.text("SALESMAN: "+(order["Salesman"]||""),90,36);
-  doc.setDrawColor(...teal);doc.setLineWidth(.5);doc.line(10,54,138,54);
-  doc.setFillColor(...teal);doc.rect(10,56,128,7,"F");
-  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(8);
-  doc.text("ITEM",12,61);doc.text("QTY",80,61);doc.text("RATE",100,61);doc.text("AMOUNT",120,61);
-  let y=70;doc.setTextColor(...black);doc.setFont("helvetica","normal");doc.setFontSize(9);
-  (order["Items"]||"").split(" | ").forEach((line,idx)=>{
-    const p=line.match(/^(.+?) x([\d.]+) @₹([\d.]+) = ₹([\d,]+)/);
-    if(p){if(idx%2===1){doc.setFillColor(245,250,247);doc.rect(10,y-4,128,7,"F");}
-      doc.text(p[1].length>28?p[1].substring(0,28):p[1],12,y);doc.text(p[2],82,y);doc.text("Rs."+p[3],98,y);
-      doc.text("Rs."+parseFloat(p[4].replace(",","")).toLocaleString("en-IN"),120,y);y+=8;}
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:"mm",format:"a4"});
+  const W=210;
+
+  function setColor(c){doc.setDrawColor(c[0],c[1],c[2]);}
+  function setFill(c){doc.setFillColor(c[0],c[1],c[2]);}
+  function setTxt(c){doc.setTextColor(c[0],c[1],c[2]);}
+  const black=[0,0,0], gray=[80,80,80], lgray=[180,180,180], white=[255,255,255], ltgray=[240,240,240], ltgray2=[220,220,220], ltgray3=[230,230,230];
+
+  function line(x1,y1,x2,y2,lw){doc.setLineWidth(lw||0.3);setColor(black);doc.line(x1,y1,x2,y2);}
+  function rect(x,y,w,h,fill){doc.setLineWidth(0.3);if(fill){setFill(fill);doc.rect(x,y,w,h,"F");setColor(black);doc.rect(x,y,w,h,"S");}else{setColor(black);doc.rect(x,y,w,h,"S");}}
+  function txt(t,x,y,size,bold,align,color){
+    doc.setFontSize(size||9);doc.setFont("helvetica",bold?"bold":"normal");
+    setTxt(color||black);
+    doc.text(String(t),x,y,{align:align||"left"});
+  }
+
+  // Parse items from order
+  const rawItems=(order["Items"]||"").split(" | ");
+  const parsedItems=[];
+  rawItems.forEach(line=>{
+    const m=line.match(/^(.+?) x([\d.]+) @₹([\d.]+) = ₹([\d,.]+)/);
+    if(m) parsedItems.push({name:m[1],qty:parseFloat(m[2]),rate:parseFloat(m[3]),amt:parseFloat(m[4].replace(/,/g,""))});
   });
-  doc.setDrawColor(...teal);doc.line(10,y,138,y);y+=6;
-  doc.setFillColor(...teal);doc.rect(80,y-1,58,10,"F");
-  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(11);
-  doc.text("TOTAL: Rs."+Math.round(parseFloat(order["Total Amount"]||order["total Amount"]||order["totalAmount"]||order["amount"]||0)).toLocaleString("en-IN"),83,y+6);
-  y+=16;if(order["Notes"]){doc.setTextColor(...gray);doc.setFont("helvetica","italic");doc.setFontSize(8);doc.text("Note: "+order["Notes"],10,y);y+=8;}
-  y+=6;doc.setTextColor(...gray);doc.setFont("helvetica","normal");doc.setFontSize(8);
-  doc.text("Status: "+(order["Status"]||"Pending"),10,y);doc.text("Thank you for your business!",80,y);
-  doc.setFillColor(...teal);doc.rect(0,195,148,5,"F");
+
+  const grandTotal=getAmt(order);
+  const dateStr=(order["Date"]||"").split(",")[0]||"";
+
+  // ---- HEADER ----
+  rect(0,0,W,40,[240,240,240]);
+  txt("MEET ENTERPRISE",W/2,10,18,true,"center");
+  txt("N/169, GREENCITY, SECTOR-26, GANDHINAGAR",W/2,16,9,false,"center",gray);
+  txt("Phone : 9824642862",W/2,21,9,false,"center",gray);
+  txt("GST INVOICE",W-15,8,10,true,"right");
+  txt("Original for Buyer",W-15,14,8,false,"right",gray);
+
+  // horizontal line
+  line(10,41,W-10,41,0.5);
+
+  // ---- CUSTOMER + INVOICE INFO BOX ----
+  const boxY=43;
+  rect(10,boxY,125,32);  // customer box
+  rect(135,boxY,65,32);  // invoice info box
+  line(135,boxY,135,boxY+32,0.3);
+
+  txt("To, "+( order["Customer Name"]||"").toUpperCase(),13,boxY+6,9,true);
+  txt("Ph.No. : "+(order["Customer Phone"]||"—"),13,boxY+12,9);
+  txt("D.L.NO. :",13,boxY+18,9);
+  txt("State : 00",13,boxY+24,9);
+
+  // right info
+  const invNo="INV-"+(order["Order ID"]||"").replace("ORD-","").slice(-6);
+  txt("Invoice No. : "+invNo,137,boxY+7,8);
+  txt("Date         : "+dateStr,137,boxY+13,8);
+  txt("Challan No. :",137,boxY+19,8);
+  txt("Sales Man : "+(order["Salesman"]||"").toUpperCase(),137,boxY+25,8);
+
+  // ---- ITEMS TABLE HEADER ----
+  const tY=boxY+34;
+  rect(10,tY,W-20,7,[220,220,220]);
+  doc.setLineWidth(0.3);doc.rect(10,tY,W-20,7,"S");
+
+  // Column positions
+  const cols={sn:10,name:18,hsn:68,pack:85,mfg:100,mrp:112,batch:122,exp:135,qty:145,free:153,rate:161,disc:171,namt:181,gst:191,amt:198};
+
+  txt("Sn.",cols.sn+1,tY+5,7,true);
+  txt("Item Name",cols.name+1,tY+5,7,true);
+  txt("HSN",cols.hsn+1,tY+5,7,true);
+  txt("Pack",cols.pack+1,tY+5,7,true);
+  txt("Mfg",cols.mfg+1,tY+5,7,true);
+  txt("M.R.P.",cols.mrp+1,tY+5,7,true);
+  txt("Qty",cols.qty+1,tY+5,7,true);
+  txt("Free",cols.free+1,tY+5,7,true);
+  txt("Rate",cols.rate+1,tY+5,7,true);
+  txt("Disc%",cols.disc+1,tY+5,6,true);
+  txt("Gst%",cols.gst+1,tY+5,6,true);
+  txt("Amount",cols.amt-1,tY+5,7,true,"right");
+
+  // col vertical lines in header
+  [cols.name,cols.hsn,cols.pack,cols.mfg,cols.mrp,cols.qty,cols.free,cols.rate,cols.disc,cols.gst,cols.amt,W-10].forEach(x=>{
+    line(x,tY,x,tY+7,0.2);
+  });
+
+  // ---- ITEMS ROWS ----
+  let rowY=tY+7;
+  const rowH=7;
+  let totalQty=0, totalFree=0, totalAmt=0;
+
+  parsedItems.forEach((item,i)=>{
+    if(i%2===0) rect(10,rowY,W-20,rowH,[250,250,250]);
+    doc.setLineWidth(0.15);doc.rect(10,rowY,W-20,rowH,"S");
+    [cols.name,cols.hsn,cols.pack,cols.mfg,cols.mrp,cols.qty,cols.free,cols.rate,cols.disc,cols.gst,cols.amt,W-10].forEach(x=>{
+      line(x,rowY,x,rowY+rowH,0.15);
+    });
+    txt(i+1+".",cols.sn+1,rowY+5,8);
+    const nameStr=item.name.length>24?item.name.substring(0,24):item.name;
+    txt(nameStr,cols.name+1,rowY+5,8);
+    txt("-BLA",cols.mfg+1,rowY+5,7,false,null,gray);
+    txt(item.rate.toFixed(2),cols.mrp+1,rowY+5,8);
+    txt(item.qty,cols.qty+1,rowY+5,8);
+    txt("0",cols.free+1,rowY+5,8);
+    txt(item.rate.toFixed(2),cols.rate+1,rowY+5,8);
+    txt("0.00",cols.disc+1,rowY+5,8);
+    txt("0%",cols.gst+1,rowY+5,8);
+    txt(item.amt.toFixed(2),cols.amt-1,rowY+5,8,false,"right");
+    totalQty+=item.qty; totalAmt+=item.amt;
+    rowY+=rowH;
+  });
+
+  // empty rows to fill space
+  for(let i=parsedItems.length;i<12;i++){
+    if(i%2===0) rect(10,rowY,W-20,rowH,[250,250,250]);
+    doc.setLineWidth(0.15);doc.rect(10,rowY,W-20,rowH,"S");
+    [cols.name,cols.hsn,cols.pack,cols.mfg,cols.mrp,cols.qty,cols.free,cols.rate,cols.disc,cols.gst,cols.amt,W-10].forEach(x=>{
+      line(x,rowY,x,rowY+rowH,0.15);
+    });
+    rowY+=rowH;
+  }
+
+  // ---- TOTALS ROW ----
+  rect(10,rowY,W-20,7,[230,230,230]);
+  doc.rect(10,rowY,W-20,7,"S");
+  [cols.name,cols.hsn,cols.pack,cols.mfg,cols.mrp,cols.qty,cols.free,cols.rate,cols.disc,cols.gst,cols.amt,W-10].forEach(x=>{
+    line(x,rowY,x,rowY+7,0.2);
+  });
+  txt(totalQty,cols.qty+1,rowY+5,8,true);
+  txt(totalFree,cols.free+1,rowY+5,8,true);
+  txt(totalAmt.toFixed(2),cols.amt-1,rowY+5,8,true,"right");
+  rowY+=7;
+
+  // ---- TOTAL LABEL ROW ----
+  doc.rect(10,rowY,W-20,7,"S");
+  txt("TOTAL :",13,rowY+5,9,true);
+  rowY+=7;
+
+  // ---- BOTTOM SECTION ----
+  const botY=rowY;
+  // Left box: transport/outstanding
+  rect(10,botY,100,28);
+  txt("Transport :",13,botY+6,8);
+  txt("L.R.No.   :",13,botY+12,8);
+  txt("OUTSTANDING :",13,botY+20,9,true);
+  txt("Rs. "+grandTotal.toFixed(2),70,botY+20,9,true);
+
+  // Right box: summary
+  rect(110,botY,W-120,28);
+  const rCol=W-15;
+  txt("Cash Discount Total",112,botY+5,8);    txt("0.00",rCol,botY+5,8,false,"right");
+  txt("Scheme Discount Total",112,botY+10,8); txt("0.00",rCol,botY+10,8,false,"right");
+  txt("SGST Amount",112,botY+15,8);           txt("0.00",rCol,botY+15,8,false,"right");
+  txt("CGST Amount",112,botY+20,8);           txt("0.00",rCol,botY+20,8,false,"right");
+  txt("Freight/Pkt Charge",112,botY+25,8);    txt("0.00",rCol,botY+25,8,false,"right");
+  rowY=botY+28;
+
+  // Grand Total bar
+  rect(110,rowY,W-120,8,[0,0,0]);
+  txt("GRAND TOTAL",113,rowY+6,10,true,null,white);
+  txt("Rs. "+grandTotal.toFixed(2),rCol,rowY+6,10,true,"right",white);
+  rowY+=8;
+
+  // ---- FOOTER ----
+  rowY+=4;
+  txt("Message:",13,rowY+5,8);
+  txt("Remark :",13,rowY+11,8);
+  line(10,rowY,W-10,rowY,0.3);
+  line(10,rowY+16,W-10,rowY+16,0.3);
+
+  rowY+=18;
+  // Terms
+  txt("Terms & Conditions",13,rowY+4,8,true);
+  txt("Goods once sold will not be taken back or exchanged.",13,rowY+9,7,false,null,gray);
+  txt("Bills not paid due date will attract 24% interest.",13,rowY+14,7,false,null,gray);
+
+  // Authorised signatory
+  txt("For, MEET ENTERPRISE",W-50,rowY+4,8,true);
+  txt("Authorised signatory",W-50,rowY+18,8,false,null,gray);
+
+  // bottom note
+  rowY+=22;
+  line(10,rowY,W-10,rowY,0.3);
+  txt("{ GST "+totalAmt.toFixed(1)+"*0%=0  SGST CESS:0%=0 }",13,rowY+5,7,false,null,gray);
+  txt("Software By Marg",W/2,rowY+5,7,false,"center",lgray);
+
   doc.save("Bill_"+(order["Order ID"]||"order")+".pdf");
 }
 
