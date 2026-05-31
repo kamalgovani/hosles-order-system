@@ -244,7 +244,13 @@ function renderItems(){
     const block=document.createElement("div");block.className="item-block";
     let selHtml="";
     if(products.length>0){
-      const opts=products.map(p=>`<option value="${p.id}" ${item.productId===p.id?"selected":""}>${p.name} — ₹${parseFloat(p.price).toLocaleString('en-IN')}</option>`).join('');
+      const opts=products.map(p=>{
+        const stockTxt=p.stock!==undefined&&p.stock!==''?' | Stock:'+p.stock:'';
+        const mrpTxt=p.mrp?' | MRP:₹'+parseFloat(p.mrp).toLocaleString('en-IN'):'';
+        const outOfStock=parseFloat(p.stock||1)<=0;
+        const label=p.name+' — Sale:₹'+parseFloat(p.price).toLocaleString('en-IN')+mrpTxt+stockTxt+(outOfStock?' ⚠ OUT OF STOCK':'');
+        return `<option value="${p.id}" ${item.productId===p.id?"selected":""} ${outOfStock?'style="color:#aaa"':""}>${label}</option>`;
+      }).join('');
       selHtml=`<div class="field"><label>Product chunno</label><select onchange="onProductSelect(${idx},this.value)"><option value="">-- Select karo --</option>${opts}<option value="__manual__" ${item.productId==="__manual__"?"selected":""}>✏ Khud likhna hai</option></select></div>`;
     }
     let manHtml="";
@@ -295,7 +301,12 @@ async function submitOrder(){
   const btn=document.getElementById("submitBtn");
   btn.disabled=true;btn.textContent="Submit ho raha hai...";
   try{
-    const d=await apiCall({action:"addOrder",salesman,customerName,customerPhone,items:itemsText,totalAmount:total,notes});
+    // Stock update: jo products dropdown se select hue unka qty
+    const stockUpdates=items
+      .filter(i=>i.productId&&i.productId!=="__manual__"&&i.productId!=="")
+      .map(i=>({id:i.productId,qty:i.qty}));
+
+    const d=await apiCall({action:"addOrder",salesman,customerName,customerPhone,items:itemsText,totalAmount:total,notes,stockUpdates:JSON.stringify(stockUpdates)});
     if(d.success){
       document.getElementById("mainForm").style.display="none";
       document.getElementById("successScreen").style.display="block";
