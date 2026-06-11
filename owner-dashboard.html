@@ -88,6 +88,17 @@
   .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
   @keyframes spin{to{transform:rotate(360deg)}}
   .empty-state{text-align:center;padding:50px 20px;color:var(--muted);display:none}
+  /* Stock update modal */
+  .stock-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center;padding:20px}
+  .stock-modal{background:white;border-radius:16px;padding:24px;width:100%;max-width:380px}
+  .stock-modal h3{font-family:'Baloo 2',cursive;font-size:18px;font-weight:700;color:var(--gd);margin-bottom:6px}
+  .stock-modal .prod-info{font-size:13px;color:var(--muted);margin-bottom:16px;padding:10px 12px;background:var(--gl);border-radius:8px}
+  .stock-modal .field{margin-bottom:14px}
+  .stock-modal label{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:5px}
+  .stock-modal input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Hind',sans-serif;font-size:15px;outline:none}
+  .stock-modal input:focus{border-color:var(--gd)}
+  .stock-modal-btns{display:flex;gap:10px;margin-top:4px}
+  .stock-modal-btns button{flex:1;padding:12px;border-radius:10px;font-family:'Hind',sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:none}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:white;padding:11px 22px;border-radius:10px;font-size:13px;display:none;z-index:200;white-space:nowrap}
   .toast.green{background:var(--gd)}.toast.red{background:var(--red)}.toast.gray{background:#333}
   .count-badge{background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px}
@@ -144,10 +155,24 @@
       <h3>&#43; Naya Shop / Customer Jodo</h3>
       <div class="input-row" style="margin-bottom:10px">
         <input type="text" id="newShopName" placeholder="Shop ka naam *" style="flex:2;min-width:160px"/>
-      </div>
-      <div class="input-row">
         <input type="tel" id="newShopPhone" placeholder="Phone number" maxlength="10"/>
-        <input type="text" id="newShopAddress" placeholder="Address (optional)"/>
+      </div>
+      <div class="input-row" style="margin-bottom:10px">
+        <input type="text" id="newShopAddress" placeholder="Address (optional)" style="flex:2"/>
+        <input type="text" id="newShopLocation" placeholder="Area (jaise: Sec-24)"/>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="newShopGps" placeholder="GPS: 23.123456,72.654321 (ya Live Location dabao)"
+              style="flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;background:white;color:var(--text)"/>
+            <button onclick="getShopLocation()" id="gpsBtn"
+              style="background:var(--bl);color:var(--blue);border:none;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Hind',sans-serif">
+              &#127757; Live Location
+            </button>
+          </div>
+          <div id="gpsStatus" style="font-size:11px;color:var(--muted);margin-top:4px;padding-left:2px"></div>
+        </div>
         <button class="green-btn" id="addShopBtn" onclick="addShop()">&#10003; Jodo</button>
       </div>
     </div>
@@ -165,10 +190,13 @@
       <h3>&#43; Naya Product Jodo</h3>
       <div class="input-row" style="margin-bottom:10px">
         <input type="text" id="newProdName" placeholder="Product ka naam *" style="flex:2;min-width:150px"/>
-        <input type="number" id="newProdPrice" placeholder="Sale Price &#8377; *" min="0"/>
+        <input type="number" id="newProdPrice" placeholder="Sale Price &#8377; *" min="0" step="0.01"/>
+      </div>
+      <div class="input-row" style="margin-bottom:10px">
+        <input type="number" id="newProdMrp" placeholder="MRP &#8377;" min="0" step="0.01"/>
+        <input type="number" id="newProdPurchasePrice" placeholder="Purchase Price &#8377;" min="0" step="0.01"/>
       </div>
       <div class="input-row">
-        <input type="number" id="newProdMrp" placeholder="MRP &#8377;" min="0"/>
         <input type="number" id="newProdStock" placeholder="Stock (quantity)" min="0"/>
         <button class="green-btn" id="addProdBtn" onclick="addProduct()">&#10003; Jodo</button>
       </div>
@@ -176,6 +204,26 @@
     <div class="list-card">
       <div class="list-header">&#128230; Products List</div>
       <div id="productsList"><div class="empty-list"><div class="spinner" style="margin:20px auto"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Stock Update Modal -->
+<div class="stock-modal-overlay" id="stockModal">
+  <div class="stock-modal">
+    <h3>&#128230; Stock Update Karo</h3>
+    <div class="prod-info" id="stockProdInfo">Product info yahan</div>
+    <div class="field">
+      <label>Kitna naya maal aaya? (Quantity)</label>
+      <input type="number" id="stockAddQty" placeholder="Jaise: 100" min="1" />
+    </div>
+    <div class="field">
+      <label>Purchase Price (Ek item ka) &#8377;</label>
+      <input type="number" id="stockPurchasePrice" placeholder="Jaise: 11.50" min="0" step="0.01" />
+    </div>
+    <div class="stock-modal-btns">
+      <button style="background:#f0f0f0;color:#333" onclick="closeStockModal()">Cancel</button>
+      <button style="background:var(--gd);color:white" onclick="saveStockUpdate()">&#10003; Stock Jodo</button>
     </div>
   </div>
 </div>
@@ -395,25 +443,50 @@ async function loadShops(){
 function renderShops(shops){
   const c=document.getElementById("shopsList");
   if(!shops||shops.length===0){c.innerHTML='<div class="empty-list">&#127978; Koi shop nahi. Upar se jodo!</div>';return;}
-  c.innerHTML=shops.map(s=>`
+  c.innerHTML=shops.map(s=>{
+    const gpsClean=s.gps?s.gps.trim().replace(/\s/g,""):"";
+    const mapUrl=gpsClean
+      ? 'https://www.google.com/maps?q='+gpsClean
+      : s.address
+        ? 'https://www.google.com/maps/search/'+encodeURIComponent(s.address)
+        : 'https://www.google.com/maps/search/'+encodeURIComponent(s.name);
+    return `
     <div class="list-item">
-      <div>
+      <div style="flex:1">
         <div class="list-item-name">${s.name}</div>
-        <div class="list-item-sub">${s.phone?'📞 '+s.phone:''}${s.address?' | '+s.address:''}</div>
+        <div class="list-item-sub">
+          ${s.phone?'📞 '+s.phone:''}
+          ${s.location?' | 📍 '+s.location:''}
+          ${s.address?' | '+s.address:''}
+
+        </div>
       </div>
-      <button class="del-btn" onclick="deleteShop('${s.id}')">&#128465; Hatao</button>
-    </div>`).join('');
+      <div style="display:flex;gap:8px;align-items:center">
+        <a href="${mapUrl}" target="_blank"
+          style="background:#E8F5E9;color:#2E7D32;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+          &#128205; Map
+        </a>
+        <button class="del-btn" onclick="deleteShop('${s.id}')">&#128465; Hatao</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 async function addShop(){
   const name=document.getElementById("newShopName").value.trim();
   const phone=document.getElementById("newShopPhone").value.trim();
   const address=document.getElementById("newShopAddress").value.trim();
+  const location=document.getElementById("newShopLocation").value.trim();
+  const gps=document.getElementById("newShopGps").value.trim();
   if(!name) return showToast("Shop ka naam bharo!","red");
   const btn=document.getElementById("addShopBtn");btn.disabled=true;btn.textContent="Jod raha hai...";
   try{
-    const d=await apiCall({action:"addShop",name,phone,address});
-    if(d.success){["newShopName","newShopPhone","newShopAddress"].forEach(id=>document.getElementById(id).value="");showToast("Shop add ho gayi! ✓","green");loadShops();}
+    const d=await apiCall({action:"addShop",name,phone,address,location,gps});
+    if(d.success){
+      ["newShopName","newShopPhone","newShopAddress","newShopLocation","newShopGps"].forEach(id=>document.getElementById(id).value="");
+      document.getElementById("gpsStatus").textContent="";
+      showToast("Shop add ho gayi! ✓","green");loadShops();
+    }
     else showToast("Nahi hua.","red");
   }catch(e){showToast("Error.","red");}
   btn.disabled=false;btn.textContent="✓ Jodo";
@@ -448,6 +521,7 @@ function renderProducts(products){
         <div class="list-item-name">${p.name}</div>
         <div style="font-size:12px;margin-top:4px;display:flex;gap:14px;align-items:center">
           ${p.mrp?`<span style="color:var(--muted)">MRP: &#8377;${parseFloat(p.mrp).toLocaleString('en-IN')}</span>`:''}
+          ${p.purchasePrice?`<span style="color:var(--muted)">Purchase: &#8377;${parseFloat(p.purchasePrice).toLocaleString('en-IN')}</span>`:''}
           ${p.stock!==undefined&&p.stock!==''?`<span style="color:${stockColor};font-weight:600">${stockIcon} Stock: ${stock}</span>`:''}
           ${stock===0?'<span style="background:#ffebee;color:#c62828;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600">Out of Stock!</span>':lowStock?'<span style="background:#faeeda;color:#BA7517;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600">Stock Kam!</span>':''}
         </div>
@@ -457,6 +531,7 @@ function renderProducts(products){
           <div class="price-tag">&#8377;${parseFloat(p.price||0).toLocaleString('en-IN')}</div>
           <div style="font-size:10px;color:var(--muted)">Sale Price</div>
         </div>
+        <button onclick="openStockModal('${p.id}','${p.name}',${parseFloat(p.stock)||0})" style="background:var(--bl);color:var(--blue);border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif">&#43; Stock</button>
         <button class="del-btn" onclick="deleteProduct('${p.id}')">&#128465; Hatao</button>
       </div>
     </div>`;
@@ -468,13 +543,14 @@ async function addProduct(){
   const price=document.getElementById("newProdPrice").value.trim();
   const mrp=document.getElementById("newProdMrp").value.trim();
   const stock=document.getElementById("newProdStock").value.trim();
+  const purchasePrice=document.getElementById("newProdPurchasePrice").value.trim();
   if(!name) return showToast("Product ka naam bharo!","red");
   if(!price||parseFloat(price)<=0) return showToast("Sale price daalo!","red");
   const btn=document.getElementById("addProdBtn");btn.disabled=true;btn.textContent="Jod raha hai...";
   try{
-    const d=await apiCall({action:"addProduct",name,price:parseFloat(price),mrp:parseFloat(mrp)||0,stock:parseFloat(stock)||0});
+    const d=await apiCall({action:"addProduct",name,price:parseFloat(price),mrp:parseFloat(mrp)||0,stock:parseFloat(stock)||0,purchasePrice:parseFloat(purchasePrice)||0});
     if(d.success){
-      ["newProdName","newProdPrice","newProdMrp","newProdStock"].forEach(id=>document.getElementById(id).value="");
+      ["newProdName","newProdPrice","newProdMrp","newProdPurchasePrice","newProdStock"].forEach(id=>document.getElementById(id).value="");
       showToast("Product add ho gaya! ✓","green");loadProducts();
     } else showToast("Nahi hua.","red");
   }catch(e){showToast("Error.","red");}
@@ -623,6 +699,78 @@ function generateBill(order){
   y+=4; hline(y,0.7);
 
   doc.save("Bill_"+invNo+"_"+(order["Customer Name"]||"order").replace(/ /g,"_")+".pdf");
+}
+
+/* ---- GPS LOCATION ---- */
+function getShopLocation(){
+  const btn=document.getElementById("gpsBtn");
+  const status=document.getElementById("gpsStatus");
+  if(!navigator.geolocation){
+    status.textContent="Aapka browser GPS support nahi karta.";
+    status.style.color="#c62828";
+    return;
+  }
+  btn.textContent="📡 Location mil rahi hai...";
+  btn.style.background="#f0f0f0";
+  btn.disabled=true;
+  status.textContent="GPS dhundh raha hai...";
+  status.style.color="var(--muted)";
+
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      const lat=pos.coords.latitude.toFixed(6);
+      const lng=pos.coords.longitude.toFixed(6);
+      document.getElementById("newShopGps").value=lat+","+lng;
+      status.innerHTML='✅ Location mili! <a href="https://www.google.com/maps?q='+lat+','+lng+'" target="_blank" style="color:var(--blue)">Map pe dekho</a>';
+      status.style.color="var(--gd)";
+      btn.textContent="🌍 Live Location";
+      btn.style.background="var(--bl)";
+      btn.disabled=false;
+    },
+    function(err){
+      let msg="Location nahi mili.";
+      if(err.code===1) msg="Location permission do — browser settings mein allow karo.";
+      else if(err.code===2) msg="GPS signal nahi mila. Bahar jao ya internet check karo.";
+      else if(err.code===3) msg="Timeout — dobara try karo.";
+      status.textContent=msg;
+      status.style.color="#c62828";
+      btn.textContent="🌍 Live Location";
+      btn.style.background="var(--bl)";
+      btn.disabled=false;
+    },
+    {enableHighAccuracy:true, timeout:15000, maximumAge:0}
+  );
+}
+
+/* ---- STOCK UPDATE ---- */
+let editingStockId = null;
+
+function openStockModal(id, name, currentStock){
+  editingStockId = id;
+  document.getElementById("stockProdInfo").innerHTML =
+    "<strong>"+name+"</strong><br>Abhi ka Stock: <strong>"+currentStock+"</strong>";
+  document.getElementById("stockAddQty").value = "";
+  document.getElementById("stockPurchasePrice").value = "";
+  document.getElementById("stockModal").style.display = "flex";
+}
+
+function closeStockModal(){
+  document.getElementById("stockModal").style.display = "none";
+  editingStockId = null;
+}
+
+async function saveStockUpdate(){
+  const addQty = parseFloat(document.getElementById("stockAddQty").value);
+  const purchasePrice = parseFloat(document.getElementById("stockPurchasePrice").value)||0;
+  if(!addQty || addQty <= 0) return showToast("Quantity bharo!","red");
+  try{
+    const d = await apiCall({action:"updateStock", id:editingStockId, addQty, purchasePrice});
+    if(d.success){
+      showToast("Stock update ho gaya! Naya stock: "+d.newStock,"green");
+      closeStockModal();
+      loadProducts();
+    } else showToast("Update nahi hua.","red");
+  } catch(e){ showToast("Error. Dobara try karo.","red"); }
 }
 
 function showToast(msg,type){
