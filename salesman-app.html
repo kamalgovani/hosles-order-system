@@ -83,12 +83,24 @@
       <div class="add-shop-box" id="addShopBox">
         <label>&#43; Naya Shop / Customer Add Karo</label>
         <div class="add-shop-row">
-          <input type="text" id="newShopName" placeholder="Shop naam *" />
+          <input type="text" id="newShopName" placeholder="Shop naam *" style="flex:2"/>
           <input type="tel" id="newShopPhone" placeholder="Phone" maxlength="10" />
         </div>
         <div class="add-shop-row" style="margin-top:8px">
-          <input type="text" id="newShopAddress" placeholder="Address (optional)" />
-          <button class="add-shop-save-btn" id="saveShopBtn" onclick="saveNewShop()">&#10003; Save</button>
+          <input type="text" id="newShopAddress" placeholder="Address (optional)" style="flex:2"/>
+          <input type="text" id="newShopLocation" placeholder="Area (Sec-24)" />
+        </div>
+        <div class="add-shop-row" style="margin-top:8px;align-items:center">
+          <input type="text" id="newShopGps" placeholder="GPS location (auto)" readonly
+            style="flex:1;background:#f5f5f5;color:#666;font-size:13px"/>
+          <button onclick="getNewShopLocation()" id="newShopGpsBtn"
+            style="background:#E6F1FB;color:#185FA5;border:none;padding:9px 14px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Hind',sans-serif">
+            &#127757; Live Location
+          </button>
+        </div>
+        <div id="newShopGpsStatus" style="font-size:11px;color:#666;margin-top:4px"></div>
+        <div class="add-shop-row" style="margin-top:10px">
+          <button class="add-shop-save-btn" id="saveShopBtn" onclick="saveNewShop()" style="width:100%">&#10003; Save Karo</button>
         </div>
       </div>
       <!-- Phone shown when shop selected -->
@@ -96,6 +108,8 @@
         <label>Phone Number</label>
         <input type="tel" id="customerPhone" placeholder="10 digit" maxlength="10" />
       </div>
+      <!-- Map button shown when shop selected -->
+      <div id="shopMapBtn" style="display:none;margin-top:8px"></div>
     </div>
   </div>
 
@@ -169,17 +183,20 @@ async function loadAll(){
 function renderShopDropdown(){
   const sel=document.getElementById("shopSelect");
   sel.innerHTML='<option value="">-- Shop select karo --</option>';
-  shops.forEach(s=>{ const o=document.createElement("option");o.value=s.id;o.textContent=s.name+(s.phone?" ("+s.phone+")":"");sel.appendChild(o); });
+  shops.forEach(s=>{ const o=document.createElement("option");o.value=s.id;o.textContent=s.name+(s.location?" - "+s.location:"")+(s.phone?" ("+s.phone+")":"");sel.appendChild(o); });
   const naya=document.createElement("option");naya.value="__new__";naya.textContent="➕ Naya Shop / Customer Jodo";sel.appendChild(naya);
 }
 
 function onShopSelect(val){
   const box=document.getElementById("addShopBox");
   const pf=document.getElementById("phoneField");
+  const mapDiv=document.getElementById("shopMapBtn");
   if(val==="__new__"){
     box.style.display="block";pf.style.display="none";selectedShop=null;
+    if(mapDiv) mapDiv.style.display="none";
   } else if(val===""){
     box.style.display="none";pf.style.display="none";selectedShop=null;
+    if(mapDiv) mapDiv.style.display="none";
   } else {
     box.style.display="none";
     const shop=shops.find(s=>s.id===val);
@@ -187,6 +204,20 @@ function onShopSelect(val){
     if(shop){
       pf.style.display="block";
       document.getElementById("customerPhone").value=shop.phone||"";
+      // Show map button
+      if(mapDiv){
+        const mapUrl=shop.gps?
+          "https://www.google.com/maps?q="+encodeURIComponent(shop.gps):
+          "https://www.google.com/maps/search/"+encodeURIComponent(shop.name+(shop.address?" "+shop.address:"")+(shop.location?" "+shop.location:""));
+        mapDiv.style.display="block";
+        mapDiv.innerHTML=`
+          <a href="${mapUrl}" target="_blank"
+            style="display:inline-flex;align-items:center;gap:6px;background:#E8F5E9;color:#2E7D32;padding:9px 16px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;font-family:'Hind',sans-serif">
+            &#128205; Map pe dekho — ${shop.name}${shop.location?" ("+shop.location+")":""}
+          </a>
+          ${shop.gps?`<div style="font-size:11px;color:#888;margin-top:4px;padding-left:2px">🛰 GPS: ${shop.gps}</div>`:""}
+        `;
+      }
     }
   }
 }
@@ -328,6 +359,34 @@ function resetForm(){
   document.getElementById("submitBtn").disabled=false;
   document.getElementById("submitBtn").textContent="✓ Order Submit Karo";
   addItem();window.scrollTo(0,0);
+}
+
+function getNewShopLocation(){
+  const btn=document.getElementById("newShopGpsBtn");
+  const status=document.getElementById("newShopGpsStatus");
+  if(!navigator.geolocation){
+    if(status) status.textContent="GPS support nahi hai.";
+    return;
+  }
+  btn.textContent="📡 Mil rahi hai...";
+  btn.disabled=true;
+  if(status) status.textContent="GPS dhundh raha hai...";
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      const lat=pos.coords.latitude.toFixed(6);
+      const lng=pos.coords.longitude.toFixed(6);
+      document.getElementById("newShopGps").value=lat+","+lng;
+      if(status) status.innerHTML='✅ Location mili! <a href="https://www.google.com/maps?q='+lat+','+lng+'" target="_blank" style="color:#185FA5">Map pe dekho</a>';
+      btn.textContent="🌍 Live Location";
+      btn.disabled=false;
+    },
+    function(err){
+      if(status) status.textContent=err.code===1?"Permission do — Allow karo.":"Location nahi mili. Dobara try karo.";
+      btn.textContent="🌍 Live Location";
+      btn.disabled=false;
+    },
+    {enableHighAccuracy:true,timeout:15000,maximumAge:0}
+  );
 }
 
 loadAll();
