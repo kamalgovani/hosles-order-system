@@ -52,6 +52,38 @@
   .spinner-sm{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
   @keyframes spin{to{transform:rotate(360deg)}}
   .or-divider{text-align:center;color:var(--muted);font-size:12px;margin:8px 0;font-weight:500}
+  /* Shop Search */
+  .shop-search-wrap{position:relative;margin-bottom:8px}
+  .shop-search-wrap input{padding-left:36px;font-size:15px}
+  .shop-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#888;font-size:16px;pointer-events:none}
+  .shop-search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:18px;color:#aaa;cursor:pointer;padding:0;line-height:1;display:none}
+  .shop-dropdown-list{position:absolute;z-index:999;background:white;border:1.5px solid var(--green);border-radius:10px;width:100%;max-height:220px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.12);display:none;top:calc(100% + 4px);left:0}
+  .shop-dropdown-list .shop-opt{padding:11px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #f0f0f0;line-height:1.4}
+  .shop-dropdown-list .shop-opt:last-child{border-bottom:none}
+  .shop-dropdown-list .shop-opt:hover,.shop-dropdown-list .shop-opt.active{background:var(--gl)}
+  .shop-opt .shop-name{font-weight:600;color:var(--text)}
+  .shop-opt .shop-sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .shop-opt .match-highlight{background:#d4f5e7;border-radius:3px;padding:0 2px}
+  .selected-shop-chip{display:flex;align-items:center;justify-content:space-between;background:var(--gl);border-radius:10px;padding:10px 14px;margin-bottom:8px;display:none}
+  .selected-shop-chip .chip-name{font-weight:600;color:var(--gd);font-size:15px}
+  .selected-shop-chip .chip-sub{font-size:12px;color:var(--muted);margin-top:1px}
+  .chip-change{background:white;border:1.5px solid var(--green);color:var(--gd);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif}
+  /* Product Search */
+  .prod-search-wrap{position:relative;margin-bottom:6px}
+  .prod-search-wrap input{padding-left:34px;font-size:14px}
+  .prod-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#888;font-size:14px;pointer-events:none}
+  .prod-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:17px;color:#aaa;cursor:pointer;padding:0;line-height:1;display:none}
+  .prod-dropdown-list{position:absolute;z-index:1000;background:white;border:1.5px solid var(--green);border-radius:10px;width:100%;max-height:240px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.14);display:none;top:calc(100% + 3px);left:0}
+  .prod-opt{padding:10px 13px;cursor:pointer;border-bottom:1px solid #f0f0f0;line-height:1.4}
+  .prod-opt:last-child{border-bottom:none}
+  .prod-opt:hover,.prod-opt.active{background:var(--gl)}
+  .prod-opt .pn{font-weight:600;font-size:14px;color:var(--text)}
+  .prod-opt .pm{font-size:12px;color:var(--muted);margin-top:2px}
+  .prod-opt .oos{color:#e53935;font-size:11px;font-weight:700}
+  .prod-chip{display:flex;align-items:center;justify-content:space-between;background:#f8fbf9;border:1.5px solid #d4ead9;border-radius:9px;padding:9px 12px;margin-bottom:6px;display:none}
+  .prod-chip .pc-name{font-weight:600;color:var(--gd);font-size:14px}
+  .prod-chip .pc-sub{font-size:12px;color:var(--muted);margin-top:1px}
+  .pc-change{background:white;border:1.5px solid var(--green);color:var(--gd);border-radius:7px;padding:4px 9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -75,9 +107,24 @@
     <div id="shopSection" style="display:none">
       <div class="field">
         <label>Shop chunno <span class="req">*</span></label>
-        <select id="shopSelect" onchange="onShopSelect(this.value)">
-          <option value="">-- Shop select karo --</option>
-        </select>
+        <!-- Selected shop chip (shows after selection) -->
+        <div class="selected-shop-chip" id="selectedShopChip" style="display:none">
+          <div>
+            <div class="chip-name" id="chipName"></div>
+            <div class="chip-sub" id="chipSub"></div>
+          </div>
+          <button class="chip-change" onclick="changeShop()">&#9998; Badlo</button>
+        </div>
+        <!-- Search box -->
+        <div class="shop-search-wrap" id="shopSearchWrap">
+          <span class="shop-search-icon">&#128269;</span>
+          <input type="text" id="shopSearchInput" placeholder="Shop naam likhkar dhundho..." autocomplete="off"
+            oninput="onShopSearch(this.value)" onfocus="onShopSearchFocus()" />
+          <button class="shop-search-clear" id="shopSearchClear" onclick="clearShopSearch()">&#215;</button>
+          <div class="shop-dropdown-list" id="shopDropdown"></div>
+        </div>
+        <!-- Hidden select kept for submit logic -->
+        <select id="shopSelect" style="display:none"></select>
       </div>
       <!-- New shop add box (shown when "naya" selected) -->
       <div class="add-shop-box" id="addShopBox">
@@ -181,10 +228,184 @@ async function loadAll(){
 }
 
 function renderShopDropdown(){
+  // Keep hidden select in sync (used by submit logic)
   const sel=document.getElementById("shopSelect");
   sel.innerHTML='<option value="">-- Shop select karo --</option>';
-  shops.forEach(s=>{ const o=document.createElement("option");o.value=s.id;o.textContent=s.name+(s.location?" - "+s.location:"")+(s.phone?" ("+s.phone+")":"");sel.appendChild(o); });
-  const naya=document.createElement("option");naya.value="__new__";naya.textContent="➕ Naya Shop / Customer Jodo";sel.appendChild(naya);
+  shops.forEach(s=>{ const o=document.createElement("option");o.value=s.id;o.textContent=s.name;sel.appendChild(o); });
+  const naya=document.createElement("option");naya.value="__new__";naya.textContent="Naya Shop";sel.appendChild(naya);
+}
+
+/* ---- SHOP SEARCH with English→Gujarati transliteration ---- */
+// Gujarati character map: English syllables → possible Gujarati equivalents
+const GUJ_MAP = [
+  // longer patterns first
+  ["shri","શ્રી"],["ksh","ક્ષ"],["ghn","ઘ"],["jny","જ્ઞ"],["tth","ઠ"],["ddh","ઢ"],["nna","ણ"],
+  ["cha","ચ"],["chh","છ"],["chi","ચ"],["che","ચ"],["cho","ચ"],["chu","ચ"],
+  ["sha","શ"],["shi","શ"],["she","શ"],["sho","શ"],["shu","શ"],["sh","શ"],
+  ["tha","થ"],["thi","થ"],["the","થ"],["tho","થ"],["thu","થ"],["th","ત"],
+  ["dha","ધ"],["dhi","ધ"],["dhe","ધ"],["dho","ધ"],["dhu","ધ"],["dh","ધ"],
+  ["kha","ખ"],["khi","ખ"],["khe","ખ"],["kho","ખ"],["khu","ખ"],["kh","ખ"],
+  ["gha","ઘ"],["ghi","ઘ"],["ghe","ઘ"],["gho","ઘ"],["ghu","ઘ"],["gh","ઘ"],
+  ["pha","ફ"],["phi","ફ"],["phe","ફ"],["pho","ફ"],["phu","ફ"],["ph","ફ"],
+  ["bha","ભ"],["bhi","ભ"],["bhe","ભ"],["bho","ભ"],["bhu","ભ"],["bh","ભ"],
+  ["na","ન"],["ni","ન"],["ne","ન"],["no","ન"],["nu","ન"],["n","ન"],
+  ["ma","મ"],["mi","મ"],["me","મ"],["mo","મ"],["mu","મ"],["m","મ"],
+  ["pa","પ"],["pi","પ"],["pe","પ"],["po","પ"],["pu","પ"],["p","પ"],
+  ["ba","બ"],["bi","બ"],["be","બ"],["bo","બ"],["bu","બ"],["b","બ"],
+  ["ra","ર"],["ri","ર"],["re","ર"],["ro","ર"],["ru","ર"],["r","ર"],
+  ["la","લ"],["li","લ"],["le","લ"],["lo","લ"],["lu","લ"],["l","લ"],
+  ["va","વ"],["vi","વ"],["ve","વ"],["vo","વ"],["vu","વ"],["v","વ"],
+  ["wa","વ"],["wi","વ"],["we","વ"],["wo","વ"],["w","વ"],
+  ["sa","સ"],["si","સ"],["se","સ"],["so","સ"],["su","સ"],["s","સ"],
+  ["ha","હ"],["hi","હ"],["he","હ"],["ho","હ"],["hu","હ"],["h","હ"],
+  ["ta","ત"],["ti","ત"],["te","ત"],["to","ત"],["tu","ત"],["t","ત"],
+  ["da","દ"],["di","દ"],["de","દ"],["do","દ"],["du","દ"],["d","દ"],
+  ["ka","ક"],["ki","ક"],["ke","ક"],["ko","ક"],["ku","ક"],["k","ક"],
+  ["ga","ગ"],["gi","ગ"],["ge","ગ"],["go","ગ"],["gu","ગ"],["g","ગ"],
+  ["ja","જ"],["ji","જ"],["je","જ"],["jo","જ"],["ju","જ"],["j","જ"],
+  ["fa","ફ"],["fi","ફ"],["fe","ફ"],["fo","ફ"],["fu","ફ"],["f","ફ"],
+  ["ya","ય"],["yi","ય"],["ye","ય"],["yo","ય"],["yu","ય"],["y","ય"],
+  ["za","ઝ"],["zi","ઝ"],["ze","ઝ"],["zo","ઝ"],["zu","ઝ"],["z","ઝ"],
+  ["aa","આ"],["ii","ઈ"],["oo","ઓ"],["ee","ઈ"],
+  ["a","અ"],["i","ઇ"],["u","ઉ"],["e","એ"],["o","ઓ"],
+];
+
+function toGujPossible(eng){
+  // Returns array of possible Gujarati chars/sequences from English input
+  const lower=eng.toLowerCase().replace(/[^a-z]/g,"");
+  let result="";
+  let i=0;
+  while(i<lower.length){
+    let matched=false;
+    for(const [en,gu] of GUJ_MAP){
+      if(lower.substr(i,en.length)===en){
+        result+=gu;
+        i+=en.length;
+        matched=true;
+        break;
+      }
+    }
+    if(!matched){result+=lower[i];i++;}
+  }
+  return result;
+}
+
+function shopMatchScore(shop, query){
+  const q=query.trim().toLowerCase();
+  if(!q) return 0;
+  const nameL=(shop.name||"").toLowerCase();
+  const locL=(shop.location||"").toLowerCase();
+  const combined=nameL+" "+(shop.address||"").toLowerCase()+" "+locL;
+  // Direct substring match (highest priority)
+  if(nameL.includes(q)) return 100 + (nameL.indexOf(q)===0?20:0);
+  if(combined.includes(q)) return 80;
+  // Try Gujarati transliteration match
+  const gujQuery=toGujPossible(q);
+  if(gujQuery && shop.name && shop.name.includes(gujQuery)) return 90+(shop.name.indexOf(gujQuery)===0?15:0);
+  if(gujQuery && combined.includes(gujQuery)) return 70;
+  // Partial Gujarati (each word of transliteration)
+  const gujWords=gujQuery.split(/\s+/).filter(Boolean);
+  let gScore=0;
+  gujWords.forEach(w=>{ if(w.length>1 && shop.name && shop.name.includes(w)) gScore+=40; });
+  if(gScore>0) return gScore;
+  // Fuzzy: every char of query in name in order
+  let fi=0; let hits=0;
+  for(const c of nameL){ if(fi<q.length && c===q[fi]){fi++;hits++;} }
+  if(fi===q.length && hits>1) return 30;
+  return 0;
+}
+
+function onShopSearch(val){
+  const clearBtn=document.getElementById("shopSearchClear");
+  clearBtn.style.display=val?"block":"none";
+  showShopDropdown(val);
+}
+
+function onShopSearchFocus(){
+  const val=document.getElementById("shopSearchInput").value;
+  showShopDropdown(val);
+  document.addEventListener("click",closeDropdownOutside,{once:false});
+}
+
+function closeDropdownOutside(e){
+  const wrap=document.getElementById("shopSearchWrap");
+  if(wrap && !wrap.contains(e.target)){
+    document.getElementById("shopDropdown").style.display="none";
+  }
+}
+
+function showShopDropdown(val){
+  const dd=document.getElementById("shopDropdown");
+  const q=val.trim();
+  let results;
+  if(!q){
+    // Show all shops (up to 40)
+    results=shops.slice(0,40).map(s=>({shop:s,score:50}));
+  } else {
+    results=shops.map(s=>({shop:s,score:shopMatchScore(s,q)}))
+      .filter(r=>r.score>0)
+      .sort((a,b)=>b.score-a.score)
+      .slice(0,20);
+  }
+  dd.innerHTML="";
+  if(results.length===0 && q){
+    dd.innerHTML=`<div class="shop-opt" style="color:#999;cursor:default">Koi shop nahi mili — "<b>${q}</b>"</div>`;
+  } else {
+    results.forEach(({shop})=>{
+      const div=document.createElement("div");
+      div.className="shop-opt";
+      div.innerHTML=`<div class="shop-name">${shop.name}</div>`+
+        (shop.location||shop.phone?`<div class="shop-sub">${[shop.location,shop.phone].filter(Boolean).join(" · ")}</div>`:"");
+      div.onclick=()=>selectShopFromSearch(shop.id);
+      dd.appendChild(div);
+    });
+  }
+  // Add "Naya Shop" option at bottom
+  const nayaDiv=document.createElement("div");
+  nayaDiv.className="shop-opt";
+  nayaDiv.style.cssText="color:var(--gd);font-weight:600;border-top:1.5px solid var(--gl)";
+  nayaDiv.innerHTML="&#43; Naya Shop / Customer Jodo";
+  nayaDiv.onclick=()=>selectShopFromSearch("__new__");
+  dd.appendChild(nayaDiv);
+  dd.style.display="block";
+}
+
+function selectShopFromSearch(val){
+  document.getElementById("shopDropdown").style.display="none";
+  // Update hidden select value
+  document.getElementById("shopSelect").value=val;
+  if(val==="__new__"){
+    document.getElementById("shopSearchInput").value="";
+    document.getElementById("shopSearchClear").style.display="none";
+    document.getElementById("selectedShopChip").style.display="none";
+    document.getElementById("shopSearchWrap").style.display="block";
+    onShopSelect("__new__");
+  } else {
+    const shop=shops.find(s=>s.id===val);
+    if(shop){
+      // Show selected chip, hide search
+      document.getElementById("chipName").textContent=shop.name;
+      document.getElementById("chipSub").textContent=[shop.location,shop.phone].filter(Boolean).join(" · ");
+      document.getElementById("selectedShopChip").style.display="flex";
+      document.getElementById("shopSearchWrap").style.display="none";
+      onShopSelect(val);
+    }
+  }
+}
+
+function clearShopSearch(){
+  document.getElementById("shopSearchInput").value="";
+  document.getElementById("shopSearchClear").style.display="none";
+  document.getElementById("shopDropdown").style.display="none";
+}
+
+function changeShop(){
+  document.getElementById("selectedShopChip").style.display="none";
+  document.getElementById("shopSearchWrap").style.display="block";
+  document.getElementById("shopSearchInput").value="";
+  document.getElementById("shopSearchInput").focus();
+  document.getElementById("shopSelect").value="";
+  onShopSelect("");
 }
 
 function onShopSelect(val){
@@ -236,8 +457,7 @@ async function saveNewShop(){
       const newShop={id:d.id,name,phone,address};
       shops.push(newShop);
       renderShopDropdown();
-      document.getElementById("shopSelect").value=d.id;
-      onShopSelect(d.id);
+      selectShopFromSearch(d.id);
       document.getElementById("addShopBox").style.display="none";
       document.getElementById("newShopName").value="";
       document.getElementById("newShopPhone").value="";
@@ -273,30 +493,166 @@ function renderItems(){
     const subtotal=item.qty*item.rate;
     const isManual=item.productId==="__manual__"||products.length===0;
     const block=document.createElement("div");block.className="item-block";
-    let selHtml="";
-    if(products.length>0){
-      const opts=products.map(p=>{
-        const stockTxt=p.stock!==undefined&&p.stock!==''?' | Stock:'+p.stock:'';
-        const mrpTxt=p.mrp?' | MRP:₹'+parseFloat(p.mrp).toLocaleString('en-IN'):'';
-        const outOfStock=parseFloat(p.stock||1)<=0;
-        const label=p.name+' — Sale:₹'+parseFloat(p.price).toLocaleString('en-IN')+mrpTxt+stockTxt+(outOfStock?' ⚠ OUT OF STOCK':'');
-        return `<option value="${p.id}" ${item.productId===p.id?"selected":""} ${outOfStock?'style="color:#aaa"':""}>${label}</option>`;
-      }).join('');
-      selHtml=`<div class="field"><label>Product chunno</label><select onchange="onProductSelect(${idx},this.value)"><option value="">-- Select karo --</option>${opts}<option value="__manual__" ${item.productId==="__manual__"?"selected":""}>✏ Khud likhna hai</option></select></div>`;
-    }
-    let manHtml="";
-    if(isManual){manHtml=`<div class="two-col"><div class="field"><label>Item Naam</label><input type="text" placeholder="Naam" value="${item.name}" oninput="items[${idx}].name=this.value"/></div><div class="field"><label>Rate (&#8377;)</label><input type="number" placeholder="0" value="${item.rate||''}" min="0" oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()"/></div></div>`;}
     block.innerHTML=`
       <div class="item-block-header"><span class="item-num">&#128230; Item ${idx+1}</span><button class="remove-btn" onclick="removeItem(${item.id})">&#215; Hatao</button></div>
-      ${selHtml}${manHtml}
-      <div class="two-col" style="margin-top:${selHtml||manHtml?'10px':'0'}">
+      ${products.length>0?`
+        <div class="field">
+          <label>Product chunno</label>
+          <div class="prod-chip" id="pchip_${idx}" style="${item.productId&&item.productId!=="__manual__"?"display:flex":"display:none"}">
+            <div><div class="pc-name" id="pchip_name_${idx}"></div><div class="pc-sub" id="pchip_sub_${idx}"></div></div>
+            <button class="pc-change" onclick="changeProd(${idx})">&#9998; Badlo</button>
+          </div>
+          <div class="prod-search-wrap" id="psearch_${idx}" style="${item.productId&&item.productId!=="__manual__"?"display:none":"display:block"}">
+            <span class="prod-search-icon">&#128269;</span>
+            <input type="text" id="psearchinput_${idx}" placeholder="Product dhundho..." autocomplete="off"
+              oninput="onProdSearch(${idx},this.value)" onfocus="onProdFocus(${idx})" />
+            <button class="prod-search-clear" id="psearchclear_${idx}" onclick="clearProdSearch(${idx})">&#215;</button>
+            <div class="prod-dropdown-list" id="pdrop_${idx}"></div>
+          </div>
+        </div>`:""}
+      ${isManual?`<div class="two-col"><div class="field"><label>Item Naam</label><input type="text" placeholder="Naam" value="${item.name}" oninput="items[${idx}].name=this.value"/></div><div class="field"><label>Rate (&#8377;)</label><input type="number" placeholder="0" value="${item.rate||''}" min="0" oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()"/></div></div>`:""}
+      <div class="two-col" style="margin-top:10px">
         <div class="field"><label>Quantity</label><input type="number" placeholder="1" value="${item.qty}" min="1" oninput="items[${idx}].qty=parseFloat(this.value)||0;renderItems()"/></div>
         <div class="field"><label>Rate (&#8377;)</label><input type="number" placeholder="0" value="${item.rate||''}" min="0" ${!isManual&&item.productId&&item.productId!=="__manual__"?'readonly style="background:#f0f0f0"':''} oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()"/></div>
       </div>
       ${subtotal>0?`<div class="item-subtotal">= &#8377;${subtotal.toLocaleString('en-IN')}</div>`:''}`;
     c.appendChild(block);
+    // If product already selected, fill the chip
+    if(item.productId&&item.productId!=="__manual__"){
+      const p=products.find(p=>p.id===item.productId);
+      if(p) fillProdChip(idx,p);
+    }
   });
   calcTotal();
+}
+
+/* ---- PRODUCT SEARCH ---- */
+function prodMatchScore(p, q){
+  const ql=q.toLowerCase();
+  const nl=(p.name||"").toLowerCase();
+  if(nl.includes(ql)) return 100+(nl.indexOf(ql)===0?20:0);
+  const guj=toGujPossible(ql);
+  if(guj&&p.name&&p.name.includes(guj)) return 90+(p.name.indexOf(guj)===0?15:0);
+  // partial word match
+  const words=ql.split(/\s+/).filter(Boolean);
+  let sc=0;
+  words.forEach(w=>{ if(w.length>1&&nl.includes(w)) sc+=30; });
+  if(sc>0) return sc;
+  // gujarati word parts
+  const gujWords=(guj||"").split(/\s+/).filter(Boolean);
+  let gs=0;
+  gujWords.forEach(w=>{ if(w.length>1&&p.name&&p.name.includes(w)) gs+=25; });
+  return gs;
+}
+
+function showProdDropdown(idx, val){
+  const dd=document.getElementById("pdrop_"+idx);
+  if(!dd) return;
+  const q=(val||"").trim();
+  let results;
+  if(!q){
+    results=products.slice(0,50).map(p=>({p,score:50}));
+  } else {
+    results=products.map(p=>({p,score:prodMatchScore(p,q)}))
+      .filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,25);
+  }
+  dd.innerHTML="";
+  if(results.length===0&&q){
+    dd.innerHTML=`<div class="prod-opt" style="color:#999;cursor:default">Koi product nahi mila</div>`;
+  } else {
+    results.forEach(({p})=>{
+      const oos=parseFloat(p.stock||1)<=0;
+      const div=document.createElement("div");
+      div.className="prod-opt"+(oos?" oos-item":"");
+      const stockTxt=p.stock!==undefined&&p.stock!==''?` | Stock:${p.stock}`:'';
+      const mrpTxt=p.mrp?` | MRP:₹${parseFloat(p.mrp).toLocaleString('en-IN')}`:'';
+      div.innerHTML=`<div class="pn">${p.name}${oos?' <span class="oos">⚠ OUT OF STOCK</span>':''}</div>`+
+        `<div class="pm">Sale:₹${parseFloat(p.price).toLocaleString('en-IN')}${mrpTxt}${stockTxt}</div>`;
+      div.onclick=()=>selectProd(idx,p.id);
+      dd.appendChild(div);
+    });
+  }
+  // Manual entry option
+  const man=document.createElement("div");
+  man.className="prod-opt";
+  man.style.cssText="color:var(--muted);font-style:italic;border-top:1.5px solid var(--gl)";
+  man.innerHTML="&#9998; Khud likhna hai";
+  man.onclick=()=>selectProd(idx,"__manual__");
+  dd.appendChild(man);
+  dd.style.display="block";
+}
+
+function onProdSearch(idx,val){
+  const cl=document.getElementById("psearchclear_"+idx);
+  if(cl) cl.style.display=val?"block":"none";
+  showProdDropdown(idx,val);
+}
+
+function onProdFocus(idx){
+  const val=(document.getElementById("psearchinput_"+idx)||{}).value||"";
+  showProdDropdown(idx,val);
+  function outside(e){
+    const wrap=document.getElementById("psearch_"+idx);
+    if(wrap&&!wrap.contains(e.target)){
+      const dd=document.getElementById("pdrop_"+idx);
+      if(dd) dd.style.display="none";
+      document.removeEventListener("click",outside);
+    }
+  }
+  document.addEventListener("click",outside);
+}
+
+function clearProdSearch(idx){
+  const inp=document.getElementById("psearchinput_"+idx);
+  const cl=document.getElementById("psearchclear_"+idx);
+  const dd=document.getElementById("pdrop_"+idx);
+  if(inp) inp.value="";
+  if(cl) cl.style.display="none";
+  if(dd) dd.style.display="none";
+}
+
+function fillProdChip(idx,p){
+  const chip=document.getElementById("pchip_"+idx);
+  const chipName=document.getElementById("pchip_name_"+idx);
+  const chipSub=document.getElementById("pchip_sub_"+idx);
+  if(!chip) return;
+  if(chipName) chipName.textContent=p.name;
+  const stockTxt=p.stock!==undefined&&p.stock!==''?` | Stock:${p.stock}`:'';
+  const mrpTxt=p.mrp?` | MRP:₹${parseFloat(p.mrp).toLocaleString('en-IN')}`:'';
+  if(chipSub) chipSub.textContent=`Sale:₹${parseFloat(p.price).toLocaleString('en-IN')}${mrpTxt}${stockTxt}`;
+  chip.style.display="flex";
+  const sw=document.getElementById("psearch_"+idx);
+  if(sw) sw.style.display="none";
+}
+
+function selectProd(idx,val){
+  const dd=document.getElementById("pdrop_"+idx);
+  if(dd) dd.style.display="none";
+  if(val==="__manual__"){
+    items[idx].productId="__manual__";items[idx].name="";items[idx].rate=0;
+    renderItems();
+  } else {
+    const p=products.find(pr=>pr.id===val);
+    if(p){
+      items[idx].productId=val;items[idx].name=p.name;items[idx].rate=parseFloat(p.price)||0;
+      // Update chip without full re-render
+      fillProdChip(idx,p);
+      calcTotal();
+      // update rate field
+      const rateInp=document.querySelectorAll(".item-block")[idx]?.querySelector('input[type="number"]:last-of-type');
+    }
+    // re-render to update rate/subtotal
+    renderItems();
+  }
+}
+
+function changeProd(idx){
+  items[idx].productId="";items[idx].name="";items[idx].rate=0;
+  renderItems();
+  setTimeout(()=>{
+    const inp=document.getElementById("psearchinput_"+idx);
+    if(inp){inp.value="";inp.focus();}
+  },50);
 }
 
 function calcTotal(){
