@@ -6,7 +6,7 @@
 <title>Owner Dashboard - Hosles</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Hind:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Hind:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;600&display=swap');
   *{box-sizing:border-box;margin:0;padding:0}
   :root{--green:#1D9E75;--gd:#0F6E56;--gl:#E1F5EE;--amber:#BA7517;--al:#FAEEDA;--blue:#185FA5;--bl:#E6F1FB;--red:#A32D2D;--rl:#FCEBEB;--text:#1a1a1a;--muted:#666;--border:#e8e8e8;--bg:#f4f6f4}
   body{font-family:'Hind',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
@@ -265,28 +265,33 @@ function apiCall(params){
 }
 
 function toLocalDateStr(dateStr){
-  // Handles formats:
-  // "28/5/2026, 3:54:52 pm"   (Indian locale)
-  // "12/6/2026, 11:17:51 AM"  (12-hour)
-  // "2026-05-28T..."           (ISO)
   if(!dateStr) return "";
   try{
-    // Try splitting by comma first to get date part only
+    // Indian format: "12/6/2026, 11:17 AM" = day/month/year
     const datePart = dateStr.split(",")[0].trim();
-    // Check if it has slashes (d/m/yyyy)
     if(datePart.indexOf("/") > -1){
       const parts = datePart.split("/");
       const d = parseInt(parts[0]);
       const m = parseInt(parts[1]);
       const y = parseInt(parts[2]);
-      if(!isNaN(d)&&!isNaN(m)&&!isNaN(y)){
+      if(!isNaN(d)&&!isNaN(m)&&!isNaN(y)&&y>2000){
         return y+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0");
       }
     }
-    // Fallback: use Date object
-    const dt = new Date(dateStr);
-    if(!isNaN(dt)){
-      return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+    // ISO format: "2026-12-06T05:47:51.000Z"
+    // Apps Script en-IN locale on server gives ISO sometimes
+    // "2026-12-06" = Apps stored Indian date 12/6 as yyyy-dd-mm (WRONG ISO)
+    // So we must treat ISO parts as: yyyy - day - month (swapped!)
+    if(dateStr.indexOf("T") > -1){
+      const isoPart = dateStr.split("T")[0];
+      const p = isoPart.split("-");
+      if(p.length===3){
+        const y=parseInt(p[0]);
+        const part2=parseInt(p[1]); // this is actually DAY in Indian date
+        const part3=parseInt(p[2]); // this is actually MONTH in Indian date
+        // Swap: treat p[1] as day, p[2] as month
+        return y+"-"+String(part3).padStart(2,"0")+"-"+String(part2).padStart(2,"0");
+      }
     }
   }catch(e){}
   return "";
@@ -365,7 +370,16 @@ async function loadOrders(){
   document.getElementById("ordersContent").style.display="none";
   try{
     const d=await apiCall({action:"getOrders"});
-    if(d.success){ allOrders=(d.orders||[]).reverse(); applyFilters(); }
+    if(d.success){
+      allOrders=(d.orders||[]).reverse();
+      // Debug: log first few dates
+      console.log("Total orders:", allOrders.length);
+      console.log("Today:", todayStr());
+      allOrders.slice(0,3).forEach(o=>{
+        console.log("Order date raw:", o["Date"], "| parsed:", toLocalDateStr(o["Date"]||""));
+      });
+      applyFilters();
+    }
   }catch(e){showToast("Orders load nahi hue. Refresh karo.","red");}
   document.getElementById("loadingScreen").style.display="none";
   document.getElementById("ordersContent").style.display="block";
@@ -583,7 +597,7 @@ async function deleteProduct(id){
 }
 
 /* ---- BILL - MEET ENTERPRISE FORMAT ---- */
-function generateBill(order){
+async function generateBill(order){
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a5",orientation:"portrait"});
   const PW=148, PH=210, ML=8, MR=8, MW=PW-ML-MR;
@@ -602,19 +616,110 @@ function generateBill(order){
   // Parse items
   const rawItems=(order["Items"]||"").split(" | ");
   const items=[];
+  // Keep Gujarati item names as-is (only clean symbols/whitespace).
+  // Gujarati text is drawn via an offscreen canvas (Noto Sans Gujarati font)
+  // so it renders correctly in the PDF instead of getting transliterated.
+  function sanitize(str){
+    if(!str) return "Item";
+    str = str.replace(/₹/g,"Rs.").replace(/–/g,"-").replace(/—/g,"-");
+    str = str.replace(/\s+/g," ");
+    str = str.replace(/^\s+|\s+$/g,"");
+    str = str.replace(/^[\s,.()\-]+|[\s,.()\-]+$/g,"");
+    return str || "Item";
+  }
+  // Renders text containing non-ASCII (Gujarati) characters to a PNG using a
+  // canvas, so jsPDF (which can't draw Gujarati glyphs natively) can place it
+  // as an image. Returns {data, w, h} where w/h are the canvas pixel size.
+  async function gujImg(str, fontPx){
+    fontPx = fontPx || 42;
+    const fontSpec = "600 "+fontPx+"px 'Noto Sans Gujarati'";
+    try{ await document.fonts.load(fontSpec, str); }catch(e){}
+    const canvas=document.createElement("canvas");
+    const ctx=canvas.getContext("2d");
+    ctx.font=fontSpec;
+    let w=Math.ceil(ctx.measureText(str).width)+8;
+    let h=Math.ceil(fontPx*1.35);
+    canvas.width=w; canvas.height=h;
+    ctx.font=fontSpec;
+    ctx.fillStyle="#000";
+    ctx.textBaseline="middle";
+    ctx.clearRect(0,0,w,h);
+    ctx.fillText(str, 3, h/2+1);
+    return {data:canvas.toDataURL("image/png"), w, h};
+  }
+  function hasGujarati(str){ return /[^ -~]/.test(str); }
   rawItems.forEach(ln=>{
     const m=ln.match(/^(.+?) x([\d.]+) @[₹Rs.]*([\d.]+)/);
     if(m){const qty=parseFloat(m[2]),rate=parseFloat(m[3]),amt=qty*rate;
-      items.push({name:m[1].trim(),qty,rate,amt});}
+      items.push({name:sanitize(m[1].trim()),qty,rate,amt});}
   });
 
   const grandTotal=getAmt(order);
-  const dateRaw=(order["Date"]||"").split(",")[0]||"";
+  // Fix date display - handle all formats
+  let dateRaw = "";
+  const rawDate = order["Date"] || "";
+  if(rawDate.indexOf("T") > -1 || rawDate.indexOf("Z") > -1){
+    // ISO format: 2026-12-06T05:47:51.000Z
+    const dt = new Date(rawDate);
+    if(!isNaN(dt)){
+      dateRaw = String(dt.getDate()).padStart(2,"0")+"/"+String(dt.getMonth()+1).padStart(2,"0")+"/"+dt.getFullYear();
+    } else dateRaw = rawDate.split("T")[0];
+  } else {
+    dateRaw = rawDate.split(",")[0] || rawDate;
+  }
   const orderIdShort=(order["Order ID"]||"").replace("ORD-","").slice(-6);
   const invNo="A"+orderIdShort.padStart(6,"0");
   const salesman=(order["Salesman"]||"").toUpperCase();
   const custName=(order["Customer Name"]||"").toUpperCase();
   const custPhone=order["Customer Phone"]||"";
+
+  // ===== PAGE MANAGEMENT =====
+  const PAGE_BOTTOM = PH - 14; // 14mm bottom margin
+  const rowH = 6;
+  // How much space the footer needs (outstanding + signatory section)
+  const FOOTER_H = 30;
+
+  function needNewPage(spaceNeeded){
+    return (y + spaceNeeded) > PAGE_BOTTOM;
+  }
+
+  // Columns for A5
+  const C={
+    sn:   {x:ML,      w:6},
+    name: {x:ML+6,    w:40},
+    qty:  {x:ML+46,   w:10},
+    free: {x:ML+56,   w:10},
+    rate: {x:ML+66,   w:16},
+    gst:  {x:ML+82,   w:10},
+    amt:  {x:ML+92,   w:MW-92},
+  };
+  function cx(col){return C[col].x+C[col].w-1;}
+  function lx(col){return C[col].x+1;}
+  function mx(col){return C[col].x+C[col].w/2;}
+
+  function drawTableHeader(yy){
+    doc.setFillColor(230,230,230);doc.rect(ML,yy-1,MW,6,"F");
+    t("Sn.",     lx("sn"),   yy+2, 6.5, true);
+    t("Item",    lx("name"), yy+2, 6.5, true);
+    tc("Qty",    mx("qty"),  yy+2, 6.5, true);
+    tc("Free",   mx("free"), yy+2, 6.5, true);
+    tr("Rate",   cx("rate"), yy+2, 6.5, true);
+    tc("Gst%",   mx("gst"),  yy+2, 6.5, true);
+    tr("Amount", cx("amt"),  yy+2, 6.5, true);
+    yy+=5; hline(yy,0.5); yy+=2;
+    return yy;
+  }
+
+  function addContinuationPage(){
+    doc.addPage();
+    let yy=8;
+    hline(yy,0.7); yy+=2;
+    tc("MEET ENTERPRISE", PW/2, yy+4, 11, true); yy+=8;
+    setT(80,80,80);tc("Invoice: "+invNo+"  |  "+custName+"  |  Continued...", PW/2, yy, 6);resetT(); yy+=4;
+    hline(yy,0.7); yy+=3;
+    yy = drawTableHeader(yy);
+    return yy;
+  }
 
   let y=8;
 
@@ -640,42 +745,35 @@ function generateBill(order){
   y+=5;
   hline(y,0.7); y+=3;
 
-  // ===== TABLE HEADER =====
-  doc.setFillColor(230,230,230);doc.rect(ML,y-1,MW,6,"F");
-
-  // Columns for A5
-  const C={
-    sn:   {x:ML,      w:6},
-    name: {x:ML+6,    w:40},
-    qty:  {x:ML+46,   w:10},
-    free: {x:ML+56,   w:10},
-    rate: {x:ML+66,   w:16},
-    gst:  {x:ML+82,   w:10},
-    amt:  {x:ML+92,   w:MW-92},
-  };
-  function cx(col){return C[col].x+C[col].w-1;}
-  function lx(col){return C[col].x+1;}
-  function mx(col){return C[col].x+C[col].w/2;}
-
-  t("Sn.",     lx("sn"),   y+2, 6.5, true);
-  t("Item",    lx("name"), y+2, 6.5, true);
-  tc("Qty",    mx("qty"),  y+2, 6.5, true);
-  tc("Free",   mx("free"), y+2, 6.5, true);
-  tr("Rate",   cx("rate"), y+2, 6.5, true);
-  tc("Gst%",   mx("gst"),  y+2, 6.5, true);
-  tr("Amount", cx("amt"),  y+2, 6.5, true);
-  y+=5;
-  hline(y,0.5); y+=2;
+  // ===== TABLE HEADER (first page) =====
+  y = drawTableHeader(y);
 
   // ===== ITEM ROWS =====
   let totalQty=0, totalAmt=0;
-  const rowH=6;
-  items.forEach((item,i)=>{
+  for(let i=0;i<items.length;i++){
+    const item=items[i];
+
+    // Check if this row + footer will fit; if not, start new page
+    // (for last few rows also ensure footer fits on same page as totals)
+    const isLastRows = (i >= items.length - 1);
+    const spaceNeeded = rowH + (isLastRows ? FOOTER_H + 14 : 0);
+    if(needNewPage(spaceNeeded)){
+      y = addContinuationPage();
+    }
+
     if(i%2===0){doc.setFillColor(248,250,248);doc.rect(ML,y-1,MW,rowH,"F");}
     const cy2=y+rowH/2-1;
-    const nameStr=item.name.length>22?item.name.substring(0,22):item.name;
+    const nameStr=item.name.length>30?item.name.substring(0,30):item.name;
     t((i+1)+".",         lx("sn"),   cy2, 7);
-    t(nameStr,           lx("name"), cy2, 7);
+    if(hasGujarati(nameStr)){
+      const img=await gujImg(nameStr,42);
+      let targetH=3.0, targetW=img.w/img.h*targetH;
+      const maxW=C["name"].w-2;
+      if(targetW>maxW){ targetW=maxW; targetH=img.h/img.w*targetW; }
+      doc.addImage(img.data,"PNG",lx("name"),cy2-targetH/2,targetW,targetH);
+    } else {
+      t(nameStr,         lx("name"), cy2, 7);
+    }
     tc(item.qty,         mx("qty"),  cy2, 7);
     tc("0",              mx("free"), cy2, 7);
     tr(item.rate.toFixed(2), cx("rate"), cy2, 7);
@@ -683,7 +781,12 @@ function generateBill(order){
     tr(item.amt.toFixed(2), cx("amt"), cy2, 7);
     totalQty+=item.qty; totalAmt+=item.amt;
     y+=rowH;
-  });
+  }
+
+  // If totals + footer won't fit, add new page
+  if(needNewPage(FOOTER_H + 14)){
+    y = addContinuationPage();
+  }
 
   hline(y,0.5); y+=2;
 
