@@ -265,12 +265,31 @@ function apiCall(params){
 }
 
 function toLocalDateStr(dateStr){
-  // parse date from order string like "28/5/2026, 3:54:52 pm"
+  // Handles formats:
+  // "28/5/2026, 3:54:52 pm"   (Indian locale)
+  // "12/6/2026, 11:17:51 AM"  (12-hour)
+  // "2026-05-28T..."           (ISO)
+  if(!dateStr) return "";
   try{
-    const parts=dateStr.split(", ")[0].split("/");
-    const d=parseInt(parts[0]),m=parseInt(parts[1])-1,y=parseInt(parts[2]);
-    return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
-  }catch(e){return "";}
+    // Try splitting by comma first to get date part only
+    const datePart = dateStr.split(",")[0].trim();
+    // Check if it has slashes (d/m/yyyy)
+    if(datePart.indexOf("/") > -1){
+      const parts = datePart.split("/");
+      const d = parseInt(parts[0]);
+      const m = parseInt(parts[1]);
+      const y = parseInt(parts[2]);
+      if(!isNaN(d)&&!isNaN(m)&&!isNaN(y)){
+        return y+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+      }
+    }
+    // Fallback: use Date object
+    const dt = new Date(dateStr);
+    if(!isNaN(dt)){
+      return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+    }
+  }catch(e){}
+  return "";
 }
 
 function todayStr(){
@@ -675,17 +694,8 @@ function generateBill(order){
   tr(totalAmt.toFixed(2),    cx("amt"),  y+2, 7, true);
   y+=6; hline(y,0.7); y+=4;
 
-  // ===== SUMMARY =====
-  const half=MW/2;
-  t("Cash Discount :",     ML,        y, 7); tr("0.00", ML+half-2, y, 7); 
-  t("Gross Amount :",      ML+half,   y, 7); tr(totalAmt.toFixed(2), ML+MW, y, 7);
-  y+=5;
-  t("Scheme Discount :",   ML,        y, 7); tr("0.00", ML+half-2, y, 7);
-  t("GST (0%) :",          ML+half,   y, 7); tr("0.00", ML+MW, y, 7);
-  y+=5;
-  t("Freight Charge :",    ML,        y, 7); tr("0.00", ML+half-2, y, 7);
-  t("Round Off :",         ML+half,   y, 7); tr("0.00", ML+MW, y, 7);
-  y+=5; dline(y); y+=4;
+  // Summary removed
+  y+=4; dline(y); y+=4;
 
   // ===== GRAND TOTAL =====
 
