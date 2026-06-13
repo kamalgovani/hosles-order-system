@@ -488,6 +488,15 @@ function onProductSelect(idx,val){
 }
 
 function renderItems(){
+  // Preserve focus + cursor position across re-render (input rebuild causes
+  // the active element to be removed, which kicks the user out of the field).
+  const active=document.activeElement;
+  let savedId=null, savedStart=null, savedEnd=null;
+  if(active && active.id && active.tagName==="INPUT" && document.getElementById("itemsList").contains(active)){
+    savedId=active.id;
+    savedStart=active.selectionStart;
+    savedEnd=active.selectionEnd;
+  }
   const c=document.getElementById("itemsList");c.innerHTML="";
   items.forEach((item,idx)=>{
     const subtotal=item.qty*item.rate;
@@ -510,10 +519,10 @@ function renderItems(){
             <div class="prod-dropdown-list" id="pdrop_${idx}"></div>
           </div>
         </div>`:""}
-      ${isManual?`<div class="two-col"><div class="field"><label>Item Naam</label><input type="text" placeholder="Naam" value="${item.name}" oninput="items[${idx}].name=this.value"/></div><div class="field"><label>Rate (&#8377;)</label><input type="number" placeholder="0" value="${item.rate||''}" min="0" oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()"/></div></div>`:""}
+      ${isManual?`<div class="two-col"><div class="field"><label>Item Naam</label><input type="text" id="iname_${idx}" placeholder="Naam" value="${item.name}" oninput="items[${idx}].name=this.value"/></div><div class="field"><label>Rate (&#8377;)</label><input type="number" id="irate_${idx}" placeholder="0" value="${item.rate||''}" min="0" oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()"/></div></div>`:""}
       <div class="two-col" style="margin-top:10px">
-        <div class="field"><label>Quantity</label><input type="number" placeholder="1" value="${item.qty}" min="1" oninput="items[${idx}].qty=parseFloat(this.value)||0;renderItems()"/></div>
-        <div class="field"><label>Rate (&#8377;)</label><input type="number" placeholder="0" value="${item.rate||''}" min="0" ${!isManual&&item.productId&&item.productId!=="__manual__"?'readonly style="background:#f0f0f0"':''} oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()"/></div>
+        <div class="field"><label>Quantity</label><input type="number" id="iqty_${idx}" placeholder="1" value="${item.qty}" min="1" oninput="items[${idx}].qty=parseFloat(this.value)||0;renderItems()"/></div>
+        <div class="field"><label>Rate (&#8377;)</label><input type="number" id="irate2_${idx}" placeholder="0" value="${item.rate||''}" min="0" oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()"/></div>
       </div>
       ${subtotal>0?`<div class="item-subtotal">= &#8377;${subtotal.toLocaleString('en-IN')}</div>`:''}`;
     c.appendChild(block);
@@ -524,6 +533,15 @@ function renderItems(){
     }
   });
   calcTotal();
+  if(savedId){
+    const el=document.getElementById(savedId);
+    if(el){
+      el.focus();
+      if(typeof savedStart==="number" && el.setSelectionRange){
+        try{ el.setSelectionRange(savedStart, savedEnd); }catch(e){}
+      }
+    }
+  }
 }
 
 /* ---- PRODUCT SEARCH ---- */
