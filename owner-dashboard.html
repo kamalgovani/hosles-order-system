@@ -654,6 +654,16 @@ async function generateBill(order){
       items.push({name:sanitize(m[1].trim()),qty,rate,amt});}
   });
 
+  // Look up MRP for each item from the products list (matched by name)
+  let mrpMap={};
+  try{
+    const pd=await apiCall({action:"getProducts"});
+    if(pd && pd.success && pd.products){
+      pd.products.forEach(p=>{ if(p.name) mrpMap[sanitize(p.name)]=parseFloat(p.mrp)||0; });
+    }
+  }catch(e){}
+  items.forEach(item=>{ item.mrp = mrpMap[item.name] || 0; });
+
   const grandTotal=getAmt(order);
   // Fix date display - handle all formats
   let dateRaw = "";
@@ -671,7 +681,22 @@ async function generateBill(order){
   const invNo="A"+orderIdShort.padStart(6,"0");
   const salesman=(order["Salesman"]||"").toUpperCase();
   const custName=(order["Customer Name"]||"").toUpperCase();
-  const custPhone=order["Customer Phone"]||"";
+  let custPhone=order["Customer Phone"]||"";
+  let custAddress=order["Customer Address"]||order["Address"]||"";
+  try{
+    const sd=await apiCall({action:"getShops"});
+    if(sd && sd.success && sd.shops){
+      const shopNameLc=(order["Customer Name"]||"").trim().toLowerCase();
+      const match=sd.shops.find(s=>(s.name||"").trim().toLowerCase()===shopNameLc);
+      if(match){
+        if(!custAddress){
+          const parts=[match.address,match.area].filter(Boolean);
+          custAddress=parts.join(", ");
+        }
+        if(!custPhone && match.phone) custPhone=match.phone;
+      }
+    }
+  }catch(e){}
 
   // ===== PAGE MANAGEMENT =====
   const PAGE_BOTTOM = PH - 14; // 14mm bottom margin
@@ -686,12 +711,11 @@ async function generateBill(order){
   // Columns for A5
   const C={
     sn:   {x:ML,      w:6},
-    name: {x:ML+6,    w:40},
-    qty:  {x:ML+46,   w:10},
-    free: {x:ML+56,   w:10},
+    name: {x:ML+6,    w:50},
+    qty:  {x:ML+56,   w:10},
     rate: {x:ML+66,   w:16},
-    gst:  {x:ML+82,   w:10},
-    amt:  {x:ML+92,   w:MW-92},
+    mrp:  {x:ML+82,   w:12},
+    amt:  {x:ML+94,   w:MW-94},
   };
   function cx(col){return C[col].x+C[col].w-1;}
   function lx(col){return C[col].x+1;}
@@ -702,9 +726,8 @@ async function generateBill(order){
     t("Sn.",     lx("sn"),   yy+2, 6.5, true);
     t("Item",    lx("name"), yy+2, 6.5, true);
     tc("Qty",    mx("qty"),  yy+2, 6.5, true);
-    tc("Free",   mx("free"), yy+2, 6.5, true);
     tr("Rate",   cx("rate"), yy+2, 6.5, true);
-    tc("Gst%",   mx("gst"),  yy+2, 6.5, true);
+    tc("MRP",    mx("mrp"),  yy+2, 6.5, true);
     tr("Amount", cx("amt"),  yy+2, 6.5, true);
     yy+=5; hline(yy,0.5); yy+=2;
     return yy;
@@ -714,8 +737,8 @@ async function generateBill(order){
     doc.addPage();
     let yy=8;
     hline(yy,0.7); yy+=2;
-    tc("MEET ENTERPRISE", PW/2, yy+4, 11, true); yy+=8;
-    setT(80,80,80);tc("Invoice: "+invNo+"  |  "+custName+"  |  Continued...", PW/2, yy, 6);resetT(); yy+=4;
+    t("MEET ENTERPRISE", ML, yy+4, 11, true); yy+=8;
+    setT(80,80,80);t("Invoice: "+invNo+"  |  "+custName+"  |  Continued...", ML, yy, 6);resetT(); yy+=4;
     hline(yy,0.7); yy+=3;
     yy = drawTableHeader(yy);
     return yy;
@@ -724,11 +747,19 @@ async function generateBill(order){
   let y=8;
 
   // ===== HEADER =====
+  const headerTop=y;
   hline(y,0.7); y+=2;
-  tc("MEET ENTERPRISE", PW/2, y+4, 13, true); y+=9;
-  setT(80,80,80);tc("SECTOR-24, GANDHINAGAR, GUJARAT", PW/2, y, 6.5);resetT(); y+=4;
-  setT(80,80,80);tc("Phone : 9429301154 / 6352341144", PW/2, y, 6.5);resetT(); y+=3;
-  hline(y,0.7); y+=4;
+  t("MEET ENTERPRISE", ML, y+4, 13, true); y+=9;
+  setT(80,80,80);t("SECTOR-24, GANDHINAGAR, GUJARAT", ML, y, 6.5);resetT(); y+=4;
+  setT(80,80,80);t("Phone : 9429301154 / 6352341144", ML, y, 6.5);resetT(); y+=3;
+  hline(y,0.7);
+  // vertical divider in the middle of the header block
+  doc.setLineWidth(0.7);doc.setDrawColor(0,0,0);doc.line(PW/2,headerTop,PW/2,y);
+  // Right side of header: buyer/shop info
+  t("TO: "+custName, PW/2+4, headerTop+5, 9, true);
+  if(custAddress){ setT(80,80,80); t(custAddress, PW/2+4, headerTop+5+5, 6.5); resetT(); }
+  if(custPhone){ setT(80,80,80); t("Ph: "+custPhone, PW/2+4, headerTop+5+10, 6.5); resetT(); }
+  y+=4;
 
   // ===== SUPPLIER + INVOICE INFO =====
   t("INVOICE NO : "+invNo,  ML,      y, 7.5, true);
@@ -737,12 +768,6 @@ async function generateBill(order){
   t("SALESMAN : "+salesman, ML,      y, 7.5);
   tr("PHONE : 9429301154 / 6352341144",  ML+MW,   y, 7.5);
   y+=4;
-  dline(y); y+=4;
-
-  // ===== BUYER =====
-  t("TO: "+custName, ML, y, 8, true);
-  if(custPhone) tr("PH: "+custPhone, ML+MW, y, 7.5);
-  y+=5;
   hline(y,0.7); y+=3;
 
   // ===== TABLE HEADER (first page) =====
@@ -775,9 +800,8 @@ async function generateBill(order){
       t(nameStr,         lx("name"), cy2, 7);
     }
     tc(item.qty,         mx("qty"),  cy2, 7);
-    tc("0",              mx("free"), cy2, 7);
     tr(item.rate.toFixed(2), cx("rate"), cy2, 7);
-    tc("0%",             mx("gst"),  cy2, 7);
+    tc(item.mrp?item.mrp.toFixed(2):"-", mx("mrp"),  cy2, 7);
     tr(item.amt.toFixed(2), cx("amt"), cy2, 7);
     totalQty+=item.qty; totalAmt+=item.amt;
     y+=rowH;
@@ -795,15 +819,9 @@ async function generateBill(order){
   t("Items: "+items.length,  lx("sn"),   y+2, 7, true);
   tc("Qty: "+totalQty,       ML+MW/2,    y+2, 7, true);
   tr(totalAmt.toFixed(2),    cx("amt"),  y+2, 7, true);
-  y+=6; hline(y,0.7); y+=4;
-
-  // Summary removed
-  y+=4; dline(y); y+=4;
-
-  // ===== GRAND TOTAL =====
+  y+=6; hline(y,0.7); y+=3;
 
   // ===== OUTSTANDING =====
-  hline(y,0.5); y+=4;
   t("OUTSTANDING : Rs. "+grandTotal.toFixed(2), ML, y, 8, true);
   tr("For, MEET ENTERPRISE", ML+MW, y, 7.5);
   y+=10;
