@@ -250,6 +250,68 @@
     </div>
   </div>
 </div>
+<!-- Order Detail Modal -->
+<div class="modal-overlay" id="orderDetailModal">
+  <div class="modal" style="max-width:480px;max-height:88vh;overflow-y:auto;text-align:left">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <h3 style="margin-bottom:0">&#128230; Order Details</h3>
+      <button onclick="closeOrderDetail()" style="background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px">&times;</button>
+    </div>
+
+    <div id="odViewMode">
+      <div style="background:var(--gl);border-radius:10px;padding:12px;margin-bottom:14px">
+        <div style="font-size:16px;font-weight:700;color:var(--gd)" id="odShopName"></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px" id="odMeta"></div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px">ITEMS</div>
+        <div id="odItemsList" style="border:1px solid var(--border);border-radius:10px;overflow:hidden"></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#f5f7f5;border-radius:10px;padding:12px;margin-bottom:14px">
+        <span style="font-weight:600;color:var(--muted)">Total Amount</span>
+        <span style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--gd)" id="odTotal"></span>
+      </div>
+
+      <div id="odNotesBox" style="margin-bottom:14px;font-size:13px;color:var(--muted)"></div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="enterEditMode()" style="flex:1;min-width:100px;background:var(--bl);color:var(--blue);border:none;padding:11px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif">&#9998; Edit Karo</button>
+        <button onclick="generateBill(window._orderCache[currentDetailOrderId])" style="flex:1;min-width:100px;background:var(--gd);color:white;border:none;padding:11px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif">&#128196; Bill</button>
+        <button onclick="confirmDeleteOrder()" style="flex:1;min-width:100px;background:var(--rl);color:var(--red);border:none;padding:11px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif">&#128465; Delete</button>
+      </div>
+    </div>
+
+    <div id="odEditMode" style="display:none">
+      <div class="field" style="margin-bottom:12px">
+        <label>Shop / Customer Naam</label>
+        <input type="text" id="odEditName" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14px"/>
+      </div>
+      <div class="field" style="margin-bottom:12px">
+        <label>Phone</label>
+        <input type="tel" id="odEditPhone" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14px"/>
+      </div>
+
+      <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px">ITEMS (edit qty/rate)</div>
+      <div id="odEditItemsList"></div>
+      <div style="text-align:right;margin:8px 0 14px;font-family:'Baloo 2',cursive;font-size:18px;font-weight:700;color:var(--gd)">
+        Total: &#8377;<span id="odEditTotal">0</span>
+      </div>
+
+      <div class="field" style="margin-bottom:14px">
+        <label>Notes</label>
+        <textarea id="odEditNotes" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;min-height:60px"></textarea>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button onclick="exitEditMode()" style="flex:1;background:#f0f0f0;color:#333;border:none;padding:11px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif">Cancel</button>
+        <button onclick="saveOrderEdit()" id="odSaveBtn" style="flex:1;background:var(--gd);color:white;border:none;padding:11px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif">&#10003; Save Karo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -516,6 +578,12 @@ function renderOrders(orders){
     window._orderCache[o["Order ID"]] = o;
     const card=document.createElement("div");
     card.className="order-card";
+    card.style.cursor="pointer";
+    card.onclick=function(e){
+      // Don't open detail if clicking on action buttons
+      if(e.target.closest(".order-actions")) return;
+      openOrderDetail(o["Order ID"]);
+    };
     // Build card without inline JSON to avoid HTML breaking
     const body = document.createElement("div"); body.className="order-body";
     body.innerHTML=`
@@ -992,6 +1060,140 @@ async function saveStockUpdate(){
       loadProducts();
     } else showToast("Update nahi hua.","red");
   } catch(e){ showToast("Error. Dobara try karo.","red"); }
+}
+
+/* ---- ORDER DETAIL MODAL ---- */
+let currentDetailOrderId = null;
+let editItems = []; // {name, qty, rate}
+
+function parseOrderItems(itemsStr){
+  const items = [];
+  (itemsStr||"").split(" | ").forEach(line=>{
+    const m = line.match(/^(.+?) x([\d.]+) @[^\d]*([\d.]+)/);
+    if(m){
+      items.push({ name: m[1].trim(), qty: parseFloat(m[2]), rate: parseFloat(m[3]) });
+    }
+  });
+  return items;
+}
+
+function buildItemsString(items){
+  return items.map(i => `${i.name} x${i.qty} @₹${i.rate} = ₹${(i.qty*i.rate).toLocaleString("en-IN")}`).join(" | ");
+}
+
+function openOrderDetail(orderId){
+  const order = window._orderCache && window._orderCache[orderId];
+  if(!order){ showToast("Order data nahi mila.","red"); return; }
+  currentDetailOrderId = orderId;
+
+  document.getElementById("odShopName").textContent = order["Customer Name"] || "—";
+  document.getElementById("odMeta").innerHTML =
+    "📋 "+(order["Order ID"]||"—")+" &nbsp;|&nbsp; 📅 "+(order["Date"]||"—")+
+    "<br>👤 "+(order["Salesman"]||"—")+(order["Customer Phone"]?" &nbsp;|&nbsp; 📞 "+order["Customer Phone"]:"")+
+    "<br>Status: <strong>"+(order["Status"]||"Pending")+"</strong>";
+
+  const items = parseOrderItems(order["Items"]);
+  document.getElementById("odItemsList").innerHTML = items.map((it,idx)=>`
+    <div style="display:flex;justify-content:space-between;padding:9px 12px;${idx%2===0?'':'background:#fafafa'};${idx<items.length-1?'border-bottom:1px solid var(--border)':''}">
+      <span style="font-size:13.5px">${it.name} <span style="color:var(--muted)">x${it.qty} @₹${it.rate}</span></span>
+      <span style="font-weight:600;font-size:13.5px">₹${(it.qty*it.rate).toLocaleString("en-IN")}</span>
+    </div>
+  `).join("") || '<div style="padding:12px;text-align:center;color:var(--muted)">Koi item nahi mila</div>';
+
+  document.getElementById("odTotal").textContent = "₹"+Math.round(getAmt(order)).toLocaleString("en-IN");
+
+  const notesEl = document.getElementById("odNotesBox");
+  if(order["Notes"]){
+    notesEl.innerHTML = "📝 <strong>Note:</strong> "+order["Notes"];
+    notesEl.style.display="block";
+  } else notesEl.style.display="none";
+
+  document.getElementById("odViewMode").style.display="block";
+  document.getElementById("odEditMode").style.display="none";
+  document.getElementById("orderDetailModal").style.display="flex";
+}
+
+function closeOrderDetail(){
+  document.getElementById("orderDetailModal").style.display="none";
+  currentDetailOrderId = null;
+  editItems = [];
+}
+
+function enterEditMode(){
+  const order = window._orderCache[currentDetailOrderId];
+  document.getElementById("odEditName").value = order["Customer Name"]||"";
+  document.getElementById("odEditPhone").value = order["Customer Phone"]||"";
+  document.getElementById("odEditNotes").value = order["Notes"]||"";
+  editItems = parseOrderItems(order["Items"]);
+  renderEditItems();
+  document.getElementById("odViewMode").style.display="none";
+  document.getElementById("odEditMode").style.display="block";
+}
+
+function exitEditMode(){
+  document.getElementById("odViewMode").style.display="block";
+  document.getElementById("odEditMode").style.display="none";
+}
+
+function renderEditItems(){
+  const c = document.getElementById("odEditItemsList");
+  c.innerHTML = editItems.map((it,idx)=>`
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;background:#f8fbf9;border:1px solid var(--border);border-radius:8px;padding:8px">
+      <input type="text" value="${it.name}" oninput="editItems[${idx}].name=this.value"
+        style="flex:2;min-width:80px;padding:7px 9px;border:1px solid var(--border);border-radius:7px;font-size:13px"/>
+      <input type="number" value="${it.qty}" min="0" oninput="editItems[${idx}].qty=parseFloat(this.value)||0;renderEditItems()"
+        style="width:55px;padding:7px 6px;border:1px solid var(--border);border-radius:7px;font-size:13px" placeholder="Qty"/>
+      <input type="number" value="${it.rate}" min="0" oninput="editItems[${idx}].rate=parseFloat(this.value)||0;renderEditItems()"
+        style="width:65px;padding:7px 6px;border:1px solid var(--border);border-radius:7px;font-size:13px" placeholder="Rate"/>
+      <button onclick="editItems.splice(${idx},1);renderEditItems()" style="background:#ffebee;color:#c62828;border:none;width:30px;height:30px;border-radius:7px;font-size:15px;cursor:pointer;flex-shrink:0">&times;</button>
+    </div>
+  `).join("");
+  const total = editItems.reduce((s,i)=>s+(i.qty*i.rate),0);
+  document.getElementById("odEditTotal").textContent = total.toLocaleString("en-IN");
+
+  // Add "add item" button at the end
+  c.innerHTML += `<button onclick="editItems.push({name:'',qty:1,rate:0});renderEditItems()"
+    style="width:100%;background:var(--gl);color:var(--gd);border:none;padding:9px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif;font-size:13px;margin-top:4px">+ Item Jodo</button>`;
+}
+
+async function saveOrderEdit(){
+  const name = document.getElementById("odEditName").value.trim();
+  const phone = document.getElementById("odEditPhone").value.trim();
+  const notes = document.getElementById("odEditNotes").value.trim();
+  if(!name) return showToast("Shop naam khali nahi ho sakta!","red");
+  const validItems = editItems.filter(i=>i.name.trim() && i.qty>0);
+  if(validItems.length===0) return showToast("Kam se kam ek item hona chahiye!","red");
+
+  const total = validItems.reduce((s,i)=>s+(i.qty*i.rate),0);
+  const itemsStr = buildItemsString(validItems);
+
+  const btn = document.getElementById("odSaveBtn");
+  btn.disabled=true; btn.textContent="Save ho raha hai...";
+  try{
+    const d = await apiCall({
+      action:"updateOrder", orderId: currentDetailOrderId,
+      customerName: name, customerPhone: phone,
+      items: itemsStr, totalAmount: total, notes: notes
+    });
+    if(d.success){
+      showToast("Order update ho gaya! ✓","green");
+      closeOrderDetail();
+      loadOrders();
+    } else showToast("Update nahi hua: "+(d.message||""),"red");
+  }catch(e){ showToast("Error. Dobara try karo.","red"); }
+  btn.disabled=false; btn.textContent="✓ Save Karo";
+}
+
+async function confirmDeleteOrder(){
+  if(!confirm("Yeh order delete karna chahte ho? Yeh wapas nahi aayega!")) return;
+  try{
+    const d = await apiCall({ action:"deleteOrder", orderId: currentDetailOrderId });
+    if(d.success){
+      showToast("Order delete ho gaya!","green");
+      closeOrderDetail();
+      loadOrders();
+    } else showToast("Delete nahi hua.","red");
+  }catch(e){ showToast("Error.","red"); }
 }
 
 function showToast(msg,type){
