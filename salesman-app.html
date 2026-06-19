@@ -51,7 +51,7 @@
   .loading-bar{text-align:center;padding:16px;color:var(--muted);font-size:14px}
   .spinner-sm{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .or-divider{text-align:center;color:var(--muted);font-size:12px;margin:8px 0;font-weight:500}
+  .or-divider{text-align:center;color:var(--muted);font-size:12px;margin:14px 0 10px;font-weight:500;position:relative}
   /* Shop Search */
   .shop-search-wrap{position:relative;margin-bottom:8px}
   .shop-search-wrap input{padding-left:36px;font-size:15px}
@@ -68,22 +68,30 @@
   .selected-shop-chip .chip-name{font-weight:600;color:var(--gd);font-size:15px}
   .selected-shop-chip .chip-sub{font-size:12px;color:var(--muted);margin-top:1px}
   .chip-change{background:white;border:1.5px solid var(--green);color:var(--gd);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif}
-  /* Product Search */
-  .prod-search-wrap{position:relative;margin-bottom:6px}
-  .prod-search-wrap input{padding-left:34px;font-size:14px}
-  .prod-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#888;font-size:14px;pointer-events:none}
-  .prod-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:17px;color:#aaa;cursor:pointer;padding:0;line-height:1;display:none}
-  .prod-dropdown-list{position:absolute;z-index:1000;background:white;border:1.5px solid var(--green);border-radius:10px;width:100%;max-height:240px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.14);display:none;top:calc(100% + 3px);left:0}
-  .prod-opt{padding:10px 13px;cursor:pointer;border-bottom:1px solid #f0f0f0;line-height:1.4}
-  .prod-opt:last-child{border-bottom:none}
-  .prod-opt:hover,.prod-opt.active{background:var(--gl)}
-  .prod-opt .pn{font-weight:600;font-size:14px;color:var(--text)}
-  .prod-opt .pm{font-size:12px;color:var(--muted);margin-top:2px}
-  .prod-opt .oos{color:#e53935;font-size:11px;font-weight:700}
-  .prod-chip{display:flex;align-items:center;justify-content:space-between;background:#f8fbf9;border:1.5px solid #d4ead9;border-radius:9px;padding:9px 12px;margin-bottom:6px;display:none}
-  .prod-chip .pc-name{font-weight:600;color:var(--gd);font-size:14px}
-  .prod-chip .pc-sub{font-size:12px;color:var(--muted);margin-top:1px}
-  .pc-change{background:white;border:1.5px solid var(--green);color:var(--gd);border-radius:7px;padding:4px 9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif;white-space:nowrap}
+  /* Product grid cards */
+  .prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+  .prod-card{background:white;border:1.5px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;transition:border-color .2s,background .2s;position:relative;cursor:pointer}
+  .prod-card.selected{border-color:var(--gd);background:var(--gl)}
+  .prod-card-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;min-height:32px}
+  .prod-card-price-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+  .prod-card-price{font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--gd)}
+  .prod-card-mrp{font-size:11px;color:#999}
+  .prod-card-stock{font-size:11px;color:var(--muted)}
+  .prod-qty-row{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+  .qty-btn{width:30px;height:30px;border:none;border-radius:8px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .qty-minus{background:#ffebee;color:#c62828}
+  .qty-plus{background:var(--gd);color:white}
+  .qty-minus10{background:#ffebee;color:#c62828;font-size:11px!important;width:auto!important;padding:0 7px!important;border-radius:8px}
+  .qty-plus10{background:var(--gd);color:white;font-size:11px!important;width:auto!important;padding:0 7px!important;border-radius:8px}
+  .qty-num{font-family:'Baloo 2',cursive;font-size:16px;font-weight:700;color:var(--text);min-width:24px;text-align:center}
+  .add-first-btn{width:100%;padding:7px;background:var(--gl);color:var(--gd);border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;font-family:'Hind',sans-serif;margin-top:2px}
+  .prod-card.oos{opacity:.6;cursor:not-allowed}
+  .selected-summary{background:#f8fbf9;border:1.5px solid #d4ead9;border-radius:10px;padding:10px 12px;margin-top:14px}
+  .selected-summary-title{font-size:12px;font-weight:600;color:var(--gd);margin-bottom:6px}
+  .selected-summary-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--text)}
+  .selected-summary-row span:last-child{font-weight:600;color:var(--gd)}
+  .sum-price-input{width:72px;padding:3px 6px;border:1.5px solid var(--green);border-radius:7px;font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--gd);text-align:right;background:white;outline:none}
+  .card-price-input{width:70px;padding:2px 6px;border:1.5px solid var(--green);border-radius:7px;font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--gd);text-align:left;background:#fff;outline:none;-webkit-appearance:none;appearance:none}
 </style>
 </head>
 <body>
@@ -97,7 +105,7 @@
     <div class="section-title">&#128100; Salesman Info</div>
     <div class="field">
       <label>Aapka Naam <span class="req">*</span></label>
-      <input type="text" id="salesman" placeholder="Salesman ka naam" />
+      <input type="text" id="salesman" placeholder="Salesman ka naam" value="Jayeshbhai" />
     </div>
   </div>
 
@@ -161,14 +169,30 @@
   </div>
 
   <div class="card">
-    <div class="section-title">
-      <div class="items-header">
-        <span>&#128230; Items / Saman</span>
-        <button class="add-btn" id="addItemBtn" onclick="addItem()" style="display:none">+ Item Jodo</button>
-      </div>
-    </div>
+    <div class="section-title">&#128230; Items / Saman</div>
     <div id="loadingProducts" class="loading-bar"><span class="spinner-sm"></span>Products load ho rahe hain...</div>
-    <div id="itemsList"></div>
+
+    <!-- Search box to filter the product grid -->
+    <div class="shop-search-wrap" id="gridSearchWrap" style="display:none">
+      <span class="shop-search-icon">&#128269;</span>
+      <input type="text" id="gridSearchInput" placeholder="Product dhundho..." autocomplete="off"
+        oninput="onGridSearch(this.value)" />
+      <button class="shop-search-clear" id="gridSearchClear" onclick="clearGridSearch()">&#215;</button>
+    </div>
+
+    <!-- Product grid: tap card or + to add -->
+    <div class="prod-grid" id="prodGrid"></div>
+
+    <!-- Selected items summary -->
+    <div class="selected-summary" id="selectedSummary" style="display:none">
+      <div class="selected-summary-title">&#10003; Selected Items</div>
+      <div id="selectedSummaryRows"></div>
+    </div>
+
+    <div class="or-divider" id="manualDivider" style="display:none">— ya —</div>
+    <button class="add-btn" id="addManualBtn" onclick="addManualItem()" style="display:none;width:100%">+ Catalog mein nahi hai? Khud likho</button>
+    <div id="manualItemsList"></div>
+
     <div class="total-box"><span>Kul Rakam</span><span id="totalDisplay">&#8377;0</span></div>
   </div>
 
@@ -194,7 +218,8 @@
 
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbzS2g3oO8TljjIrpXZ-t9xc020VrZ-MvIm2c9HfIWPIL-IcZJA9B38kRTMjQTMNN9lT/exec";
-let items=[],products=[],shops=[],selectedShop=null;
+let products=[],shops=[],selectedShop=null;
+let manualItems=[]; // custom items not in catalog: {id,name,qty,rate}
 
 function apiCall(params){
   return new Promise((resolve,reject)=>{
@@ -209,6 +234,10 @@ function apiCall(params){
   });
 }
 
+function escapeHtml(s){
+  return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
 async function loadAll(){
   // load shops and products in parallel
   const [sd, pd] = await Promise.allSettled([
@@ -221,10 +250,20 @@ async function loadAll(){
   document.getElementById("loadingShops").style.display="none";
   document.getElementById("shopSection").style.display="block";
   // Products
-  products = (pd.status==="fulfilled" && pd.value.success) ? (pd.value.products||[]) : [];
+  const rawProducts = (pd.status==="fulfilled" && pd.value.success) ? (pd.value.products||[]) : [];
+  products = rawProducts.map(p=>({...p, qty:0}));
   document.getElementById("loadingProducts").style.display="none";
-  document.getElementById("addItemBtn").style.display="inline-block";
-  addItem();
+  if(products.length>0){
+    document.getElementById("gridSearchWrap").style.display="block";
+    renderProductGrid(products);
+  }
+  document.getElementById("manualDivider").style.display="block";
+  document.getElementById("addManualBtn").style.display="block";
+  if(products.length===0){
+    // No catalog at all — go straight to manual entry
+    addManualItem();
+  }
+  calcTotal();
 }
 
 function renderShopDropdown(){
@@ -349,13 +388,13 @@ function showShopDropdown(val){
   }
   dd.innerHTML="";
   if(results.length===0 && q){
-    dd.innerHTML=`<div class="shop-opt" style="color:#999;cursor:default">Koi shop nahi mili — "<b>${q}</b>"</div>`;
+    dd.innerHTML=`<div class="shop-opt" style="color:#999;cursor:default">Koi shop nahi mili — "<b>${escapeHtml(q)}</b>"</div>`;
   } else {
     results.forEach(({shop})=>{
       const div=document.createElement("div");
       div.className="shop-opt";
-      div.innerHTML=`<div class="shop-name">${shop.name}</div>`+
-        (shop.location||shop.phone?`<div class="shop-sub">${[shop.location,shop.phone].filter(Boolean).join(" · ")}</div>`:"");
+      div.innerHTML=`<div class="shop-name">${escapeHtml(shop.name)}</div>`+
+        (shop.location||shop.phone?`<div class="shop-sub">${escapeHtml([shop.location,shop.phone].filter(Boolean).join(" · "))}</div>`:"");
       div.onclick=()=>selectShopFromSearch(shop.id);
       dd.appendChild(div);
     });
@@ -434,9 +473,9 @@ function onShopSelect(val){
         mapDiv.innerHTML=`
           <a href="${mapUrl}" target="_blank"
             style="display:inline-flex;align-items:center;gap:6px;background:#E8F5E9;color:#2E7D32;padding:9px 16px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;font-family:'Hind',sans-serif">
-            &#128205; Map pe dekho — ${shop.name}${shop.location?" ("+shop.location+")":""}
+            &#128205; Map pe dekho — ${escapeHtml(shop.name)}${shop.location?" ("+escapeHtml(shop.location)+")":""}
           </a>
-          ${shop.gps?`<div style="font-size:11px;color:#888;margin-top:4px;padding-left:2px">🛰 GPS: ${shop.gps}</div>`:""}
+          ${shop.gps?`<div style="font-size:11px;color:#888;margin-top:4px;padding-left:2px">🛰 GPS: ${escapeHtml(shop.gps)}</div>`:""}
         `;
       }
     }
@@ -468,71 +507,217 @@ async function saveNewShop(){
   btn.disabled=false;btn.textContent="✓ Save";
 }
 
-/* ---- ITEMS ---- */
-function addItem(){
-  items.push({id:Date.now(),productId:"",name:"",qty:1,rate:0});
-  renderItems();
-  setTimeout(()=>{const l=document.getElementById("itemsList");l.lastElementChild&&l.lastElementChild.scrollIntoView({behavior:"smooth",block:"nearest"})},100);
+/* ---- PRODUCT GRID (tap card / + to add, +/- to adjust qty) ---- */
+function prodMatchScore(p, q){
+  const ql=q.toLowerCase();
+  const nl=(p.name||"").toLowerCase();
+  if(nl.includes(ql)) return 100+(nl.indexOf(ql)===0?20:0);
+  const guj=toGujPossible(ql);
+  if(guj&&p.name&&p.name.includes(guj)) return 90+(p.name.indexOf(guj)===0?15:0);
+  const words=ql.split(/\s+/).filter(Boolean);
+  let sc=0;
+  words.forEach(w=>{ if(w.length>1&&nl.includes(w)) sc+=30; });
+  if(sc>0) return sc;
+  const gujWords=(guj||"").split(/\s+/).filter(Boolean);
+  let gs=0;
+  gujWords.forEach(w=>{ if(w.length>1&&p.name&&p.name.includes(w)) gs+=25; });
+  return gs;
 }
 
-function removeItem(id){
-  if(items.length===1) return showError("Kam se kam ek item rakhna zaroori hai!");
-  items=items.filter(i=>i.id!==id);renderItems();
+function filterProducts(q){
+  q=(q||"").trim();
+  if(!q) return products;
+  return products.map(p=>({p,score:prodMatchScore(p,q)}))
+    .filter(r=>r.score>0).sort((a,b)=>b.score-a.score).map(r=>r.p);
 }
 
-function onProductSelect(idx,val){
-  if(val==="__manual__"){items[idx].productId="__manual__";items[idx].name="";items[idx].rate=0;}
-  else if(val===""){items[idx].productId="";items[idx].name="";items[idx].rate=0;}
-  else{const p=products.find(p=>p.id===val);if(p){items[idx].productId=val;items[idx].name=p.name;items[idx].rate=parseFloat(p.price)||0;}}
-  renderItems();
+function currentGridList(){
+  const val=(document.getElementById("gridSearchInput")||{}).value||"";
+  return filterProducts(val);
 }
 
-function renderItems(){
-  // Preserve focus + cursor position across re-render (input rebuild causes
-  // the active element to be removed, which kicks the user out of the field).
+function onGridSearch(val){
+  const cl=document.getElementById("gridSearchClear");
+  if(cl) cl.style.display=val?"block":"none";
+  renderProductGrid(filterProducts(val));
+}
+
+function clearGridSearch(){
+  const inp=document.getElementById("gridSearchInput");
+  const cl=document.getElementById("gridSearchClear");
+  if(inp) inp.value="";
+  if(cl) cl.style.display="none";
+  renderProductGrid(products);
+}
+
+function renderProductGrid(list){
+  const grid=document.getElementById("prodGrid");
+  if(!grid) return;
+  if(!list || list.length===0){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#999;padding:18px;font-size:13px">Koi product nahi mila</div>';
+    renderSelectedSummary();
+    return;
+  }
+  grid.innerHTML=list.map(p=>{
+    const qty=p.qty||0;
+    const oos=parseFloat(p.stock)===0;
+    const stockTxt=(p.stock!==undefined && p.stock!=="")? (oos?"OUT OF STOCK":"Stock: "+p.stock) : "";
+    const mrpTxt=(p.mrp!==undefined && p.mrp!==""&&parseFloat(p.mrp)>0)? "MRP: ₹"+parseFloat(p.mrp).toLocaleString("en-IN") : "";
+    const priceVal=parseFloat(p.price)||0;
+    // Price: editable input when selected, plain text otherwise
+    const priceDisplay = qty>0
+      ? `<input class="card-price-input" type="number" min="0" step="0.01"
+           data-pid="${escapeHtml(String(p.id))}" value="${priceVal}"
+           onclick="event.stopPropagation()"
+           onchange="updateCardPrice('${escapeHtml(String(p.id))}',this.value)"
+           title="Price tap karke badlo" />`
+      : `<span class="prod-card-price">₹${priceVal.toLocaleString("en-IN")}</span>`;
+    let bottom;
+    if(oos){
+      bottom="";
+    } else if(qty>0){
+      bottom=`<div class="prod-qty-row">
+        <button class="qty-btn qty-minus10" data-action="minus10">−10</button>
+        <button class="qty-btn qty-minus" data-action="minus">−</button>
+        <span class="qty-num">${qty}</span>
+        <button class="qty-btn qty-plus" data-action="plus">+</button>
+        <button class="qty-btn qty-plus10" data-action="plus10">+10</button>
+      </div>`;
+    } else {
+      bottom=`<button class="add-first-btn" data-action="add">+ Add Karo</button>`;
+    }
+    return `<div class="prod-card${qty>0?" selected":""}${oos?" oos":""}" data-id="${escapeHtml(p.id)}">
+      <div class="prod-card-name">${escapeHtml(p.name)}</div>
+      <div class="prod-card-price-row">
+        ${priceDisplay}
+        ${mrpTxt?`<span class="prod-card-mrp">${mrpTxt}</span>`:""}
+      </div>
+      ${stockTxt?`<div class="prod-card-stock"${oos?' style="color:#e53935;font-weight:700"':""}>${stockTxt}</div>`:""}
+      ${bottom}
+    </div>`;
+  }).join("");
+  renderSelectedSummary();
+}
+
+function incQty(id){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  if(parseFloat(p.stock)===0) return;
+  p.qty=(p.qty||0)+1;
+  renderProductGrid(currentGridList());
+  calcTotal();
+}
+
+function updateCardPrice(id, val){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  p.price=parseFloat(val)||0;
+  renderSelectedSummary();
+  calcTotal();
+}
+
+function decQty(id){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  p.qty=Math.max(0,(p.qty||0)-1);
+  renderProductGrid(currentGridList());
+  calcTotal();
+}
+
+// Event delegation for grid clicks (card tap, + , -)
+document.addEventListener("DOMContentLoaded",()=>{
+  const grid=document.getElementById("prodGrid");
+  if(grid){
+    grid.addEventListener("click",function(e){
+      const card=e.target.closest(".prod-card");
+      if(!card || card.classList.contains("oos")) return;
+      const id=card.getAttribute("data-id");
+      const action=e.target.getAttribute("data-action");
+      if(action==="plus"||action==="add"){ incQty(id); }
+      else if(action==="minus"){ decQty(id); }
+      else if(!action){
+        const p=products.find(x=>String(x.id)===String(id));
+        if(p && !(p.qty>0)) incQty(id);
+      }
+    });
+  }
+});
+
+function renderSelectedSummary(){
+  const wrap=document.getElementById("selectedSummary");
+  const rows=document.getElementById("selectedSummaryRows");
+  if(!wrap||!rows) return;
+  const selected=products.filter(p=>(p.qty||0)>0);
+  if(selected.length===0){ wrap.style.display="none"; rows.innerHTML=""; return; }
+  wrap.style.display="block";
+  // Save focused input id before re-render
+  const focusedId=document.activeElement && document.activeElement.classList.contains("sum-price-input")
+    ? document.activeElement.getAttribute("data-pid") : null;
+  rows.innerHTML=selected.map(p=>{
+    const sub=(p.qty||0)*(parseFloat(p.price)||0);
+    return `<div class="selected-summary-row">
+      <span>${escapeHtml(p.name)} × ${p.qty}</span>
+      <span style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:11px;color:#999">₹</span>
+        <input class="sum-price-input" type="number" min="0" step="0.01"
+          data-pid="${escapeHtml(String(p.id))}"
+          value="${parseFloat(p.price)||0}"
+          onchange="updateSummaryPrice('${escapeHtml(String(p.id))}',this.value)"
+          title="Price badlo" />
+        <span style="font-size:12px;color:var(--muted)">=&nbsp;₹${sub.toLocaleString("en-IN")}</span>
+      </span>
+    </div>`;
+  }).join("");
+  // Restore focus
+  if(focusedId){
+    const el=rows.querySelector(`.sum-price-input[data-pid="${focusedId}"]`);
+    if(el) el.focus();
+  }
+}
+
+function updateSummaryPrice(id, val){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  p.price=parseFloat(val)||0;
+  renderSelectedSummary();
+  calcTotal();
+}
+
+/* ---- MANUAL / CUSTOM ITEMS (not in catalog) ---- */
+function addManualItem(){
+  manualItems.push({id:Date.now(),name:"",qty:1,rate:0});
+  renderManualItems();
+}
+
+function removeManualItem(id){
+  manualItems=manualItems.filter(i=>i.id!==id);
+  renderManualItems();
+  calcTotal();
+}
+
+function renderManualItems(){
+  const c=document.getElementById("manualItemsList");
+  if(!c) return;
   const active=document.activeElement;
   let savedId=null, savedStart=null, savedEnd=null;
-  if(active && active.id && active.tagName==="INPUT" && document.getElementById("itemsList").contains(active)){
-    savedId=active.id;
-    savedStart=active.selectionStart;
-    savedEnd=active.selectionEnd;
+  if(active && active.id && active.tagName==="INPUT" && c.contains(active)){
+    savedId=active.id; savedStart=active.selectionStart; savedEnd=active.selectionEnd;
   }
-  const c=document.getElementById("itemsList");c.innerHTML="";
-  items.forEach((item,idx)=>{
-    const subtotal=item.qty*item.rate;
-    const isManual=item.productId==="__manual__"||products.length===0;
-    const block=document.createElement("div");block.className="item-block";
+  c.innerHTML="";
+  manualItems.forEach((item)=>{
+    const subtotal=(item.qty||0)*(item.rate||0);
+    const block=document.createElement("div");
+    block.className="item-block";
     block.innerHTML=`
-      <div class="item-block-header"><span class="item-num">&#128230; Item ${idx+1}</span><button class="remove-btn" onclick="removeItem(${item.id})">&#215; Hatao</button></div>
-      ${products.length>0?`
-        <div class="field">
-          <label>Product chunno</label>
-          <div class="prod-chip" id="pchip_${idx}" style="${item.productId&&item.productId!=="__manual__"?"display:flex":"display:none"}">
-            <div><div class="pc-name" id="pchip_name_${idx}"></div><div class="pc-sub" id="pchip_sub_${idx}"></div></div>
-            <button class="pc-change" onclick="changeProd(${idx})">&#9998; Badlo</button>
-          </div>
-          <div class="prod-search-wrap" id="psearch_${idx}" style="${item.productId&&item.productId!=="__manual__"?"display:none":"display:block"}">
-            <span class="prod-search-icon">&#128269;</span>
-            <input type="text" id="psearchinput_${idx}" placeholder="Product dhundho..." autocomplete="off"
-              oninput="onProdSearch(${idx},this.value)" onfocus="onProdFocus(${idx})" />
-            <button class="prod-search-clear" id="psearchclear_${idx}" onclick="clearProdSearch(${idx})">&#215;</button>
-            <div class="prod-dropdown-list" id="pdrop_${idx}"></div>
-          </div>
-        </div>`:""}
-      ${isManual?`<div class="two-col"><div class="field"><label>Item Naam</label><input type="text" id="iname_${idx}" placeholder="Naam" value="${item.name}" oninput="items[${idx}].name=this.value"/></div><div class="field"><label>Rate (&#8377;)</label><input type="number" id="irate_${idx}" placeholder="0" value="${item.rate||''}" min="0" oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()"/></div></div>`:""}
+      <div class="item-block-header"><span class="item-num">&#9999;&#65039; Custom Item</span><button class="remove-btn" onclick="removeManualItem(${item.id})">&#215; Hatao</button></div>
+      <div class="field"><label>Item Naam</label><input type="text" id="mname_${item.id}" placeholder="Naam" value="${escapeHtml(item.name)}" oninput="updateManualItem(${item.id},'name',this.value)"/></div>
       <div class="two-col" style="margin-top:10px">
-        <div class="field"><label>Quantity</label><input type="number" id="iqty_${idx}" placeholder="1" value="${item.qty}" min="1" oninput="items[${idx}].qty=parseFloat(this.value)||0;renderItems()"/></div>
-        <div class="field"><label>Rate (&#8377;)</label><input type="number" id="irate2_${idx}" placeholder="0" value="${item.rate||''}" min="0" oninput="items[${idx}].rate=parseFloat(this.value)||0;renderItems()"/></div>
+        <div class="field"><label>Quantity</label><input type="number" id="mqty_${item.id}" placeholder="1" value="${item.qty}" min="1" oninput="updateManualItem(${item.id},'qty',this.value)"/></div>
+        <div class="field"><label>Rate (&#8377;)</label><input type="number" id="mrate_${item.id}" placeholder="0" value="${item.rate||''}" min="0" oninput="updateManualItem(${item.id},'rate',this.value)"/></div>
       </div>
       ${subtotal>0?`<div class="item-subtotal">= &#8377;${subtotal.toLocaleString('en-IN')}</div>`:''}`;
     c.appendChild(block);
-    // If product already selected, fill the chip
-    if(item.productId&&item.productId!=="__manual__"){
-      const p=products.find(p=>p.id===item.productId);
-      if(p) fillProdChip(idx,p);
-    }
   });
-  calcTotal();
   if(savedId){
     const el=document.getElementById(savedId);
     if(el){
@@ -544,138 +729,23 @@ function renderItems(){
   }
 }
 
-/* ---- PRODUCT SEARCH ---- */
-function prodMatchScore(p, q){
-  const ql=q.toLowerCase();
-  const nl=(p.name||"").toLowerCase();
-  if(nl.includes(ql)) return 100+(nl.indexOf(ql)===0?20:0);
-  const guj=toGujPossible(ql);
-  if(guj&&p.name&&p.name.includes(guj)) return 90+(p.name.indexOf(guj)===0?15:0);
-  // partial word match
-  const words=ql.split(/\s+/).filter(Boolean);
-  let sc=0;
-  words.forEach(w=>{ if(w.length>1&&nl.includes(w)) sc+=30; });
-  if(sc>0) return sc;
-  // gujarati word parts
-  const gujWords=(guj||"").split(/\s+/).filter(Boolean);
-  let gs=0;
-  gujWords.forEach(w=>{ if(w.length>1&&p.name&&p.name.includes(w)) gs+=25; });
-  return gs;
+function updateManualItem(id,field,val){
+  const item=manualItems.find(i=>i.id===id);
+  if(!item) return;
+  if(field==="name") item.name=val;
+  else if(field==="qty") item.qty=parseFloat(val)||0;
+  else if(field==="rate") item.rate=parseFloat(val)||0;
+  if(field!=="name") renderManualItems();
+  calcTotal();
 }
 
-function showProdDropdown(idx, val){
-  const dd=document.getElementById("pdrop_"+idx);
-  if(!dd) return;
-  const q=(val||"").trim();
-  let results;
-  if(!q){
-    results=products.slice(0,50).map(p=>({p,score:50}));
-  } else {
-    results=products.map(p=>({p,score:prodMatchScore(p,q)}))
-      .filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,25);
-  }
-  dd.innerHTML="";
-  if(results.length===0&&q){
-    dd.innerHTML=`<div class="prod-opt" style="color:#999;cursor:default">Koi product nahi mila</div>`;
-  } else {
-    results.forEach(({p})=>{
-      const oos=parseFloat(p.stock||1)<=0;
-      const div=document.createElement("div");
-      div.className="prod-opt"+(oos?" oos-item":"");
-      const stockTxt=p.stock!==undefined&&p.stock!==''?` | Stock:${p.stock}`:'';
-      const mrpTxt=p.mrp?` | MRP:₹${parseFloat(p.mrp).toLocaleString('en-IN')}`:'';
-      div.innerHTML=`<div class="pn">${p.name}${oos?' <span class="oos">⚠ OUT OF STOCK</span>':''}</div>`+
-        `<div class="pm">Sale:₹${parseFloat(p.price).toLocaleString('en-IN')}${mrpTxt}${stockTxt}</div>`;
-      div.onclick=()=>selectProd(idx,p.id);
-      dd.appendChild(div);
-    });
-  }
-  // Manual entry option
-  const man=document.createElement("div");
-  man.className="prod-opt";
-  man.style.cssText="color:var(--muted);font-style:italic;border-top:1.5px solid var(--gl)";
-  man.innerHTML="&#9998; Khud likhna hai";
-  man.onclick=()=>selectProd(idx,"__manual__");
-  dd.appendChild(man);
-  dd.style.display="block";
-}
-
-function onProdSearch(idx,val){
-  const cl=document.getElementById("psearchclear_"+idx);
-  if(cl) cl.style.display=val?"block":"none";
-  showProdDropdown(idx,val);
-}
-
-function onProdFocus(idx){
-  const val=(document.getElementById("psearchinput_"+idx)||{}).value||"";
-  showProdDropdown(idx,val);
-  function outside(e){
-    const wrap=document.getElementById("psearch_"+idx);
-    if(wrap&&!wrap.contains(e.target)){
-      const dd=document.getElementById("pdrop_"+idx);
-      if(dd) dd.style.display="none";
-      document.removeEventListener("click",outside);
-    }
-  }
-  document.addEventListener("click",outside);
-}
-
-function clearProdSearch(idx){
-  const inp=document.getElementById("psearchinput_"+idx);
-  const cl=document.getElementById("psearchclear_"+idx);
-  const dd=document.getElementById("pdrop_"+idx);
-  if(inp) inp.value="";
-  if(cl) cl.style.display="none";
-  if(dd) dd.style.display="none";
-}
-
-function fillProdChip(idx,p){
-  const chip=document.getElementById("pchip_"+idx);
-  const chipName=document.getElementById("pchip_name_"+idx);
-  const chipSub=document.getElementById("pchip_sub_"+idx);
-  if(!chip) return;
-  if(chipName) chipName.textContent=p.name;
-  const stockTxt=p.stock!==undefined&&p.stock!==''?` | Stock:${p.stock}`:'';
-  const mrpTxt=p.mrp?` | MRP:₹${parseFloat(p.mrp).toLocaleString('en-IN')}`:'';
-  if(chipSub) chipSub.textContent=`Sale:₹${parseFloat(p.price).toLocaleString('en-IN')}${mrpTxt}${stockTxt}`;
-  chip.style.display="flex";
-  const sw=document.getElementById("psearch_"+idx);
-  if(sw) sw.style.display="none";
-}
-
-function selectProd(idx,val){
-  const dd=document.getElementById("pdrop_"+idx);
-  if(dd) dd.style.display="none";
-  if(val==="__manual__"){
-    items[idx].productId="__manual__";items[idx].name="";items[idx].rate=0;
-    renderItems();
-  } else {
-    const p=products.find(pr=>pr.id===val);
-    if(p){
-      items[idx].productId=val;items[idx].name=p.name;items[idx].rate=parseFloat(p.price)||0;
-      // Update chip without full re-render
-      fillProdChip(idx,p);
-      calcTotal();
-      // update rate field
-      const rateInp=document.querySelectorAll(".item-block")[idx]?.querySelector('input[type="number"]:last-of-type');
-    }
-    // re-render to update rate/subtotal
-    renderItems();
-  }
-}
-
-function changeProd(idx){
-  items[idx].productId="";items[idx].name="";items[idx].rate=0;
-  renderItems();
-  setTimeout(()=>{
-    const inp=document.getElementById("psearchinput_"+idx);
-    if(inp){inp.value="";inp.focus();}
-  },50);
-}
-
+/* ---- TOTAL / SUBMIT ---- */
 function calcTotal(){
-  const t=items.reduce((s,i)=>s+(i.qty*i.rate),0);
-  document.getElementById("totalDisplay").textContent="₹"+t.toLocaleString("en-IN");return t;
+  const prodTotal=products.reduce((s,p)=>s+((p.qty||0)*(parseFloat(p.price)||0)),0);
+  const manualTotal=manualItems.reduce((s,i)=>s+((i.qty||0)*(i.rate||0)),0);
+  const t=prodTotal+manualTotal;
+  document.getElementById("totalDisplay").textContent="₹"+t.toLocaleString("en-IN");
+  return t;
 }
 
 function showError(msg){
@@ -690,26 +760,29 @@ async function submitOrder(){
   const phone=document.getElementById("customerPhone").value.trim();
   const notes=document.getElementById("notes").value.trim();
 
+  const selectedProducts=products.filter(p=>(p.qty||0)>0);
+  const validManualItems=manualItems.filter(i=>i.name.trim());
+
   if(!salesman) return showError("Apna naam bharo!");
   if(!shopVal||shopVal==="__new__") return showError("Shop select karo ya naya shop save karo!");
-  if(items.length===0) return showError("Kam se kam ek item jodo!");
-  if(items.some(i=>!i.name.trim())) return showError("Saare items ka naam / product select karo!");
-  if(items.some(i=>i.rate<=0)) return showError("Saare items ki rate bharo!");
+  if(selectedProducts.length===0 && validManualItems.length===0) return showError("Kam se kam ek item jodo!");
+  if(manualItems.some(i=>i.name.trim() && i.rate<=0)) return showError("Custom items ki rate bharo!");
 
   const shop=shops.find(s=>s.id===shopVal);
   const customerName=shop?shop.name:shopVal;
   const customerPhone=phone||(shop?shop.phone:"")||"";
 
-  const total=items.reduce((s,i)=>s+(i.qty*i.rate),0);
-  const itemsText=items.map(i=>`${i.name} x${i.qty} @₹${i.rate} = ₹${(i.qty*i.rate).toLocaleString("en-IN")}`).join(" | ");
+  const total=calcTotal();
+  const itemsText=[
+    ...selectedProducts.map(p=>`${p.name} x${p.qty} @₹${p.price} = ₹${((p.qty||0)*(parseFloat(p.price)||0)).toLocaleString("en-IN")}`),
+    ...validManualItems.map(i=>`${i.name} x${i.qty} @₹${i.rate} = ₹${(i.qty*i.rate).toLocaleString("en-IN")}`)
+  ].join(" | ");
 
   const btn=document.getElementById("submitBtn");
   btn.disabled=true;btn.textContent="Submit ho raha hai...";
   try{
-    // Stock update: jo products dropdown se select hue unka qty
-    const stockUpdates=items
-      .filter(i=>i.productId&&i.productId!=="__manual__"&&i.productId!=="")
-      .map(i=>({id:i.productId,qty:i.qty}));
+    // Stock update: catalog products jo select hue unka qty
+    const stockUpdates=selectedProducts.map(p=>({id:p.id,qty:p.qty}));
 
     const d=await apiCall({action:"addOrder",salesman,customerName,customerPhone,items:itemsText,totalAmount:total,notes,stockUpdates:JSON.stringify(stockUpdates)});
     if(d.success){
@@ -724,15 +797,23 @@ async function submitOrder(){
 function resetForm(){
   document.getElementById("mainForm").style.display="block";
   document.getElementById("successScreen").style.display="none";
-  ["salesman","notes","newShopName","newShopPhone","newShopAddress"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  ["notes","newShopName","newShopPhone","newShopAddress"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
   document.getElementById("shopSelect").value="";
   document.getElementById("addShopBox").style.display="none";
   document.getElementById("phoneField").style.display="none";
   document.getElementById("customerPhone").value="";
-  selectedShop=null;items=[];
+  selectedShop=null;
+  products.forEach(p=>p.qty=0);
+  manualItems=[];
+  const gs=document.getElementById("gridSearchInput"); if(gs) gs.value="";
+  const gc=document.getElementById("gridSearchClear"); if(gc) gc.style.display="none";
+  renderProductGrid(products);
+  renderManualItems();
+  if(products.length===0) addManualItem();
   document.getElementById("submitBtn").disabled=false;
   document.getElementById("submitBtn").textContent="✓ Order Submit Karo";
-  addItem();window.scrollTo(0,0);
+  calcTotal();
+  window.scrollTo(0,0);
 }
 
 function getNewShopLocation(){
