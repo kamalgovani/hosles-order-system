@@ -21,7 +21,6 @@
   input:focus,select:focus,textarea:focus{border-color:var(--green)}
   select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
   textarea{resize:vertical;min-height:80px;-webkit-appearance:auto;appearance:auto}
-  /* Shop add section */
   .add-shop-box{background:var(--gl);border-radius:10px;padding:12px 14px;margin-top:10px;display:none}
   .add-shop-box label{color:var(--gd);font-weight:600}
   .add-shop-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
@@ -52,7 +51,6 @@
   .spinner-sm{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
   @keyframes spin{to{transform:rotate(360deg)}}
   .or-divider{text-align:center;color:var(--muted);font-size:12px;margin:14px 0 10px;font-weight:500;position:relative}
-  /* Shop Search */
   .shop-search-wrap{position:relative;margin-bottom:8px}
   .shop-search-wrap input{padding-left:36px;font-size:15px}
   .shop-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#888;font-size:16px;pointer-events:none}
@@ -63,12 +61,10 @@
   .shop-dropdown-list .shop-opt:hover,.shop-dropdown-list .shop-opt.active{background:var(--gl)}
   .shop-opt .shop-name{font-weight:600;color:var(--text)}
   .shop-opt .shop-sub{font-size:12px;color:var(--muted);margin-top:2px}
-  .shop-opt .match-highlight{background:#d4f5e7;border-radius:3px;padding:0 2px}
   .selected-shop-chip{display:flex;align-items:center;justify-content:space-between;background:var(--gl);border-radius:10px;padding:10px 14px;margin-bottom:8px;display:none}
   .selected-shop-chip .chip-name{font-weight:600;color:var(--gd);font-size:15px}
   .selected-shop-chip .chip-sub{font-size:12px;color:var(--muted);margin-top:1px}
   .chip-change{background:white;border:1.5px solid var(--green);color:var(--gd);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif}
-  /* Product grid cards */
   .prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
   .prod-card{background:white;border:1.5px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;transition:border-color .2s,background .2s;position:relative;cursor:pointer}
   .prod-card.selected{border-color:var(--gd);background:var(--gl)}
@@ -81,8 +77,8 @@
   .qty-btn{width:30px;height:30px;border:none;border-radius:8px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .qty-minus{background:#ffebee;color:#c62828}
   .qty-plus{background:var(--gd);color:white}
-  .qty-minus10{background:#ffebee;color:#c62828;font-size:11px!important;width:auto!important;padding:0 7px!important;border-radius:8px}
-  .qty-plus10{background:var(--gd);color:white;font-size:11px!important;width:auto!important;padding:0 7px!important;border-radius:8px}
+  .qty-minus10{background:#ffebee;color:#c62828;font-size:11px!important;width:auto!important;padding:0 7px!important;border-radius:8px;height:30px;cursor:pointer;border:none;font-weight:700;font-family:'Hind',sans-serif}
+  .qty-plus10{background:var(--gd);color:white;font-size:11px!important;width:auto!important;padding:0 7px!important;border-radius:8px;height:30px;cursor:pointer;border:none;font-weight:700;font-family:'Hind',sans-serif}
   .qty-num{font-family:'Baloo 2',cursive;font-size:16px;font-weight:700;color:var(--text);min-width:24px;text-align:center}
   .add-first-btn{width:100%;padding:7px;background:var(--gl);color:var(--gd);border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;font-family:'Hind',sans-serif;margin-top:2px}
   .prod-card.oos{opacity:.6;cursor:not-allowed}
@@ -115,7 +111,6 @@
     <div id="shopSection" style="display:none">
       <div class="field">
         <label>Shop chunno <span class="req">*</span></label>
-        <!-- Selected shop chip (shows after selection) -->
         <div class="selected-shop-chip" id="selectedShopChip" style="display:none">
           <div>
             <div class="chip-name" id="chipName"></div>
@@ -123,7 +118,6 @@
           </div>
           <button class="chip-change" onclick="changeShop()">&#9998; Badlo</button>
         </div>
-        <!-- Search box -->
         <div class="shop-search-wrap" id="shopSearchWrap">
           <span class="shop-search-icon">&#128269;</span>
           <input type="text" id="shopSearchInput" placeholder="Shop naam likhkar dhundho..." autocomplete="off"
@@ -131,10 +125,8 @@
           <button class="shop-search-clear" id="shopSearchClear" onclick="clearShopSearch()">&#215;</button>
           <div class="shop-dropdown-list" id="shopDropdown"></div>
         </div>
-        <!-- Hidden select kept for submit logic -->
         <select id="shopSelect" style="display:none"></select>
       </div>
-      <!-- New shop add box (shown when "naya" selected) -->
       <div class="add-shop-box" id="addShopBox">
         <label>&#43; Naya Shop / Customer Add Karo</label>
         <div class="add-shop-row">
@@ -158,12 +150,10 @@
           <button class="add-shop-save-btn" id="saveShopBtn" onclick="saveNewShop()" style="width:100%">&#10003; Save Karo</button>
         </div>
       </div>
-      <!-- Phone shown when shop selected -->
       <div class="field" id="phoneField" style="display:none">
         <label>Phone Number</label>
         <input type="tel" id="customerPhone" placeholder="10 digit" maxlength="10" />
       </div>
-      <!-- Map button shown when shop selected -->
       <div id="shopMapBtn" style="display:none;margin-top:8px"></div>
     </div>
   </div>
@@ -171,28 +161,20 @@
   <div class="card">
     <div class="section-title">&#128230; Items / Saman</div>
     <div id="loadingProducts" class="loading-bar"><span class="spinner-sm"></span>Products load ho rahe hain...</div>
-
-    <!-- Search box to filter the product grid -->
     <div class="shop-search-wrap" id="gridSearchWrap" style="display:none">
       <span class="shop-search-icon">&#128269;</span>
       <input type="text" id="gridSearchInput" placeholder="Product dhundho..." autocomplete="off"
         oninput="onGridSearch(this.value)" />
       <button class="shop-search-clear" id="gridSearchClear" onclick="clearGridSearch()">&#215;</button>
     </div>
-
-    <!-- Product grid: tap card or + to add -->
     <div class="prod-grid" id="prodGrid"></div>
-
-    <!-- Selected items summary -->
     <div class="selected-summary" id="selectedSummary" style="display:none">
       <div class="selected-summary-title">&#10003; Selected Items</div>
       <div id="selectedSummaryRows"></div>
     </div>
-
     <div class="or-divider" id="manualDivider" style="display:none">— ya —</div>
     <button class="add-btn" id="addManualBtn" onclick="addManualItem()" style="display:none;width:100%">+ Catalog mein nahi hai? Khud likho</button>
     <div id="manualItemsList"></div>
-
     <div class="total-box"><span>Kul Rakam</span><span id="totalDisplay">&#8377;0</span></div>
   </div>
 
@@ -219,7 +201,7 @@
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbzS2g3oO8TljjIrpXZ-t9xc020VrZ-MvIm2c9HfIWPIL-IcZJA9B38kRTMjQTMNN9lT/exec";
 let products=[],shops=[],selectedShop=null;
-let manualItems=[]; // custom items not in catalog: {id,name,qty,rate}
+let manualItems=[];
 
 function apiCall(params){
   return new Promise((resolve,reject)=>{
@@ -239,17 +221,14 @@ function escapeHtml(s){
 }
 
 async function loadAll(){
-  // load shops and products in parallel
   const [sd, pd] = await Promise.allSettled([
     apiCall({action:"getShops"}),
     apiCall({action:"getProducts"})
   ]);
-  // Shops
   shops = (sd.status==="fulfilled" && sd.value.success) ? (sd.value.shops||[]) : [];
   renderShopDropdown();
   document.getElementById("loadingShops").style.display="none";
   document.getElementById("shopSection").style.display="block";
-  // Products
   const rawProducts = (pd.status==="fulfilled" && pd.value.success) ? (pd.value.products||[]) : [];
   products = rawProducts.map(p=>({...p, qty:0}));
   document.getElementById("loadingProducts").style.display="none";
@@ -259,25 +238,18 @@ async function loadAll(){
   }
   document.getElementById("manualDivider").style.display="block";
   document.getElementById("addManualBtn").style.display="block";
-  if(products.length===0){
-    // No catalog at all — go straight to manual entry
-    addManualItem();
-  }
+  if(products.length===0){ addManualItem(); }
   calcTotal();
 }
 
 function renderShopDropdown(){
-  // Keep hidden select in sync (used by submit logic)
   const sel=document.getElementById("shopSelect");
   sel.innerHTML='<option value="">-- Shop select karo --</option>';
   shops.forEach(s=>{ const o=document.createElement("option");o.value=s.id;o.textContent=s.name;sel.appendChild(o); });
   const naya=document.createElement("option");naya.value="__new__";naya.textContent="Naya Shop";sel.appendChild(naya);
 }
 
-/* ---- SHOP SEARCH with English→Gujarati transliteration ---- */
-// Gujarati character map: English syllables → possible Gujarati equivalents
 const GUJ_MAP = [
-  // longer patterns first
   ["shri","શ્રી"],["ksh","ક્ષ"],["ghn","ઘ"],["jny","જ્ઞ"],["tth","ઠ"],["ddh","ઢ"],["nna","ણ"],
   ["cha","ચ"],["chh","છ"],["chi","ચ"],["che","ચ"],["cho","ચ"],["chu","ચ"],
   ["sha","શ"],["shi","શ"],["she","શ"],["sho","શ"],["shu","શ"],["sh","શ"],
@@ -310,19 +282,12 @@ const GUJ_MAP = [
 ];
 
 function toGujPossible(eng){
-  // Returns array of possible Gujarati chars/sequences from English input
   const lower=eng.toLowerCase().replace(/[^a-z]/g,"");
-  let result="";
-  let i=0;
+  let result="";let i=0;
   while(i<lower.length){
     let matched=false;
     for(const [en,gu] of GUJ_MAP){
-      if(lower.substr(i,en.length)===en){
-        result+=gu;
-        i+=en.length;
-        matched=true;
-        break;
-      }
+      if(lower.substr(i,en.length)===en){result+=gu;i+=en.length;matched=true;break;}
     }
     if(!matched){result+=lower[i];i++;}
   }
@@ -335,19 +300,15 @@ function shopMatchScore(shop, query){
   const nameL=(shop.name||"").toLowerCase();
   const locL=(shop.location||"").toLowerCase();
   const combined=nameL+" "+(shop.address||"").toLowerCase()+" "+locL;
-  // Direct substring match (highest priority)
   if(nameL.includes(q)) return 100 + (nameL.indexOf(q)===0?20:0);
   if(combined.includes(q)) return 80;
-  // Try Gujarati transliteration match
   const gujQuery=toGujPossible(q);
   if(gujQuery && shop.name && shop.name.includes(gujQuery)) return 90+(shop.name.indexOf(gujQuery)===0?15:0);
   if(gujQuery && combined.includes(gujQuery)) return 70;
-  // Partial Gujarati (each word of transliteration)
   const gujWords=gujQuery.split(/\s+/).filter(Boolean);
   let gScore=0;
   gujWords.forEach(w=>{ if(w.length>1 && shop.name && shop.name.includes(w)) gScore+=40; });
   if(gScore>0) return gScore;
-  // Fuzzy: every char of query in name in order
   let fi=0; let hits=0;
   for(const c of nameL){ if(fi<q.length && c===q[fi]){fi++;hits++;} }
   if(fi===q.length && hits>1) return 30;
@@ -378,13 +339,10 @@ function showShopDropdown(val){
   const q=val.trim();
   let results;
   if(!q){
-    // Show all shops (up to 40)
     results=shops.slice(0,40).map(s=>({shop:s,score:50}));
   } else {
     results=shops.map(s=>({shop:s,score:shopMatchScore(s,q)}))
-      .filter(r=>r.score>0)
-      .sort((a,b)=>b.score-a.score)
-      .slice(0,20);
+      .filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,20);
   }
   dd.innerHTML="";
   if(results.length===0 && q){
@@ -399,7 +357,6 @@ function showShopDropdown(val){
       dd.appendChild(div);
     });
   }
-  // Add "Naya Shop" option at bottom
   const nayaDiv=document.createElement("div");
   nayaDiv.className="shop-opt";
   nayaDiv.style.cssText="color:var(--gd);font-weight:600;border-top:1.5px solid var(--gl)";
@@ -411,7 +368,6 @@ function showShopDropdown(val){
 
 function selectShopFromSearch(val){
   document.getElementById("shopDropdown").style.display="none";
-  // Update hidden select value
   document.getElementById("shopSelect").value=val;
   if(val==="__new__"){
     document.getElementById("shopSearchInput").value="";
@@ -422,7 +378,6 @@ function selectShopFromSearch(val){
   } else {
     const shop=shops.find(s=>s.id===val);
     if(shop){
-      // Show selected chip, hide search
       document.getElementById("chipName").textContent=shop.name;
       document.getElementById("chipSub").textContent=[shop.location,shop.phone].filter(Boolean).join(" · ");
       document.getElementById("selectedShopChip").style.display="flex";
@@ -464,7 +419,6 @@ function onShopSelect(val){
     if(shop){
       pf.style.display="block";
       document.getElementById("customerPhone").value=shop.phone||"";
-      // Show map button
       if(mapDiv){
         const mapUrl=shop.gps?
           "https://www.google.com/maps?q="+encodeURIComponent(shop.gps):
@@ -492,7 +446,6 @@ async function saveNewShop(){
   try{
     const d=await apiCall({action:"addShop",name,phone,address});
     if(d.success){
-      // add to local list and select it
       const newShop={id:d.id,name,phone,address};
       shops.push(newShop);
       renderShopDropdown();
@@ -501,13 +454,13 @@ async function saveNewShop(){
       document.getElementById("newShopName").value="";
       document.getElementById("newShopPhone").value="";
       document.getElementById("newShopAddress").value="";
-      showError(""); // clear
+      showError("");
     } else showError("Shop save nahi hua: "+(d.message||""));
   }catch(e){showError("Error. Dobara try karo.");}
   btn.disabled=false;btn.textContent="✓ Save";
 }
 
-/* ---- PRODUCT GRID (tap card / + to add, +/- to adjust qty) ---- */
+/* ---- PRODUCT GRID ---- */
 function prodMatchScore(p, q){
   const ql=q.toLowerCase();
   const nl=(p.name||"").toLowerCase();
@@ -564,24 +517,23 @@ function renderProductGrid(list){
     const stockTxt=(p.stock!==undefined && p.stock!=="")? (oos?"OUT OF STOCK":"Stock: "+p.stock) : "";
     const mrpTxt=(p.mrp!==undefined && p.mrp!==""&&parseFloat(p.mrp)>0)? "MRP: ₹"+parseFloat(p.mrp).toLocaleString("en-IN") : "";
     const priceVal=parseFloat(p.price)||0;
-    // Price: editable input when selected, plain text otherwise
     const priceDisplay = qty>0
       ? `<input class="card-price-input" type="number" min="0" step="0.01"
            data-pid="${escapeHtml(String(p.id))}" value="${priceVal}"
            onclick="event.stopPropagation()"
            onchange="updateCardPrice('${escapeHtml(String(p.id))}',this.value)"
            title="Price tap karke badlo" />`
-      : `<span class="prod-card-price">₹${priceVal.toLocaleString("en-IN")}</span>`;
+      : `<span class="prod-card-price">&#8377;${priceVal.toLocaleString("en-IN")}</span>`;
     let bottom;
     if(oos){
       bottom="";
     } else if(qty>0){
       bottom=`<div class="prod-qty-row">
-        <button class="qty-btn qty-minus10" data-action="minus10">−10</button>
-        <button class="qty-btn qty-minus" data-action="minus">−</button>
+        <button class="qty-minus10" data-action="minus10">-10</button>
+        <button class="qty-btn qty-minus" data-action="minus">-</button>
         <span class="qty-num">${qty}</span>
         <button class="qty-btn qty-plus" data-action="plus">+</button>
-        <button class="qty-btn qty-plus10" data-action="plus10">+10</button>
+        <button class="qty-plus10" data-action="plus10">+10</button>
       </div>`;
     } else {
       bottom=`<button class="add-first-btn" data-action="add">+ Add Karo</button>`;
@@ -599,6 +551,7 @@ function renderProductGrid(list){
   renderSelectedSummary();
 }
 
+/* ====== FIX: +10 / -10 functions ====== */
 function incQty(id){
   const p=products.find(x=>String(x.id)===String(id));
   if(!p) return;
@@ -608,11 +561,12 @@ function incQty(id){
   calcTotal();
 }
 
-function updateCardPrice(id, val){
+function incQtyBy(id, n){
   const p=products.find(x=>String(x.id)===String(id));
   if(!p) return;
-  p.price=parseFloat(val)||0;
-  renderSelectedSummary();
+  if(parseFloat(p.stock)===0) return;
+  p.qty=(p.qty||0)+n;
+  renderProductGrid(currentGridList());
   calcTotal();
 }
 
@@ -624,7 +578,24 @@ function decQty(id){
   calcTotal();
 }
 
-// Event delegation for grid clicks (card tap, + , -)
+function decQtyBy(id, n){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  p.qty=Math.max(0,(p.qty||0)-n);
+  renderProductGrid(currentGridList());
+  calcTotal();
+}
+/* ====== END FIX ====== */
+
+function updateCardPrice(id, val){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  p.price=parseFloat(val)||0;
+  renderSelectedSummary();
+  calcTotal();
+}
+
+// Event delegation for grid clicks
 document.addEventListener("DOMContentLoaded",()=>{
   const grid=document.getElementById("prodGrid");
   if(grid){
@@ -633,8 +604,12 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(!card || card.classList.contains("oos")) return;
       const id=card.getAttribute("data-id");
       const action=e.target.getAttribute("data-action");
+      /* ====== FIX: handle plus10 and minus10 ====== */
       if(action==="plus"||action==="add"){ incQty(id); }
+      else if(action==="plus10"){ incQtyBy(id,10); }
       else if(action==="minus"){ decQty(id); }
+      else if(action==="minus10"){ decQtyBy(id,10); }
+      /* ====== END FIX ====== */
       else if(!action){
         const p=products.find(x=>String(x.id)===String(id));
         if(p && !(p.qty>0)) incQty(id);
@@ -650,7 +625,6 @@ function renderSelectedSummary(){
   const selected=products.filter(p=>(p.qty||0)>0);
   if(selected.length===0){ wrap.style.display="none"; rows.innerHTML=""; return; }
   wrap.style.display="block";
-  // Save focused input id before re-render
   const focusedId=document.activeElement && document.activeElement.classList.contains("sum-price-input")
     ? document.activeElement.getAttribute("data-pid") : null;
   rows.innerHTML=selected.map(p=>{
@@ -658,17 +632,16 @@ function renderSelectedSummary(){
     return `<div class="selected-summary-row">
       <span>${escapeHtml(p.name)} × ${p.qty}</span>
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="font-size:11px;color:#999">₹</span>
+        <span style="font-size:11px;color:#999">&#8377;</span>
         <input class="sum-price-input" type="number" min="0" step="0.01"
           data-pid="${escapeHtml(String(p.id))}"
           value="${parseFloat(p.price)||0}"
           onchange="updateSummaryPrice('${escapeHtml(String(p.id))}',this.value)"
           title="Price badlo" />
-        <span style="font-size:12px;color:var(--muted)">=&nbsp;₹${sub.toLocaleString("en-IN")}</span>
+        <span style="font-size:12px;color:var(--muted)">=&nbsp;&#8377;${sub.toLocaleString("en-IN")}</span>
       </span>
     </div>`;
   }).join("");
-  // Restore focus
   if(focusedId){
     const el=rows.querySelector(`.sum-price-input[data-pid="${focusedId}"]`);
     if(el) el.focus();
@@ -683,7 +656,7 @@ function updateSummaryPrice(id, val){
   calcTotal();
 }
 
-/* ---- MANUAL / CUSTOM ITEMS (not in catalog) ---- */
+/* ---- MANUAL / CUSTOM ITEMS ---- */
 function addManualItem(){
   manualItems.push({id:Date.now(),name:"",qty:1,rate:0});
   renderManualItems();
@@ -744,7 +717,7 @@ function calcTotal(){
   const prodTotal=products.reduce((s,p)=>s+((p.qty||0)*(parseFloat(p.price)||0)),0);
   const manualTotal=manualItems.reduce((s,i)=>s+((i.qty||0)*(i.rate||0)),0);
   const t=prodTotal+manualTotal;
-  document.getElementById("totalDisplay").textContent="₹"+t.toLocaleString("en-IN");
+  document.getElementById("totalDisplay").textContent="&#8377;"+t.toLocaleString("en-IN");
   return t;
 }
 
@@ -759,39 +732,32 @@ async function submitOrder(){
   const shopVal=document.getElementById("shopSelect").value;
   const phone=document.getElementById("customerPhone").value.trim();
   const notes=document.getElementById("notes").value.trim();
-
   const selectedProducts=products.filter(p=>(p.qty||0)>0);
   const validManualItems=manualItems.filter(i=>i.name.trim());
-
   if(!salesman) return showError("Apna naam bharo!");
   if(!shopVal||shopVal==="__new__") return showError("Shop select karo ya naya shop save karo!");
   if(selectedProducts.length===0 && validManualItems.length===0) return showError("Kam se kam ek item jodo!");
   if(manualItems.some(i=>i.name.trim() && i.rate<=0)) return showError("Custom items ki rate bharo!");
-
   const shop=shops.find(s=>s.id===shopVal);
   const customerName=shop?shop.name:shopVal;
   const customerPhone=phone||(shop?shop.phone:"")||"";
-
   const total=calcTotal();
   const itemsText=[
-    ...selectedProducts.map(p=>`${p.name} x${p.qty} @₹${p.price} = ₹${((p.qty||0)*(parseFloat(p.price)||0)).toLocaleString("en-IN")}`),
-    ...validManualItems.map(i=>`${i.name} x${i.qty} @₹${i.rate} = ₹${(i.qty*i.rate).toLocaleString("en-IN")}`)
+    ...selectedProducts.map(p=>`${p.name} x${p.qty} @&#8377;${p.price} = &#8377;${((p.qty||0)*(parseFloat(p.price)||0)).toLocaleString("en-IN")}`),
+    ...validManualItems.map(i=>`${i.name} x${i.qty} @&#8377;${i.rate} = &#8377;${(i.qty*i.rate).toLocaleString("en-IN")}`)
   ].join(" | ");
-
   const btn=document.getElementById("submitBtn");
   btn.disabled=true;btn.textContent="Submit ho raha hai...";
   try{
-    // Stock update: catalog products jo select hue unka qty
     const stockUpdates=selectedProducts.map(p=>({id:p.id,qty:p.qty}));
-
     const d=await apiCall({action:"addOrder",salesman,customerName,customerPhone,items:itemsText,totalAmount:total,notes,stockUpdates:JSON.stringify(stockUpdates)});
     if(d.success){
       document.getElementById("mainForm").style.display="none";
       document.getElementById("successScreen").style.display="block";
       document.getElementById("successOrderId").textContent="Order ID: "+d.orderId;
       window.scrollTo(0,0);
-    } else {showError("Kuch galat hua, dobara try karo.");btn.disabled=false;btn.textContent="✓ Order Submit Karo";}
-  }catch(e){showError("Internet check karo aur dobara try karo.");btn.disabled=false;btn.textContent="✓ Order Submit Karo";}
+    } else {showError("Kuch galat hua, dobara try karo.");btn.disabled=false;btn.textContent="&#10003; Order Submit Karo";}
+  }catch(e){showError("Internet check karo aur dobara try karo.");btn.disabled=false;btn.textContent="&#10003; Order Submit Karo";}
 }
 
 function resetForm(){
@@ -811,7 +777,7 @@ function resetForm(){
   renderManualItems();
   if(products.length===0) addManualItem();
   document.getElementById("submitBtn").disabled=false;
-  document.getElementById("submitBtn").textContent="✓ Order Submit Karo";
+  document.getElementById("submitBtn").textContent="&#10003; Order Submit Karo";
   calcTotal();
   window.scrollTo(0,0);
 }
@@ -819,12 +785,8 @@ function resetForm(){
 function getNewShopLocation(){
   const btn=document.getElementById("newShopGpsBtn");
   const status=document.getElementById("newShopGpsStatus");
-  if(!navigator.geolocation){
-    if(status) status.textContent="GPS support nahi hai.";
-    return;
-  }
-  btn.textContent="📡 Mil rahi hai...";
-  btn.disabled=true;
+  if(!navigator.geolocation){if(status) status.textContent="GPS support nahi hai.";return;}
+  btn.textContent="📡 Mil rahi hai...";btn.disabled=true;
   if(status) status.textContent="GPS dhundh raha hai...";
   navigator.geolocation.getCurrentPosition(
     function(pos){
@@ -832,13 +794,11 @@ function getNewShopLocation(){
       const lng=pos.coords.longitude.toFixed(6);
       document.getElementById("newShopGps").value=lat+","+lng;
       if(status) status.innerHTML='✅ Location mili! <a href="https://www.google.com/maps?q='+lat+','+lng+'" target="_blank" style="color:#185FA5">Map pe dekho</a>';
-      btn.textContent="🌍 Live Location";
-      btn.disabled=false;
+      btn.textContent="🌍 Live Location";btn.disabled=false;
     },
     function(err){
       if(status) status.textContent=err.code===1?"Permission do — Allow karo.":"Location nahi mili. Dobara try karo.";
-      btn.textContent="🌍 Live Location";
-      btn.disabled=false;
+      btn.textContent="🌍 Live Location";btn.disabled=false;
     },
     {enableHighAccuracy:true,timeout:15000,maximumAge:0}
   );
