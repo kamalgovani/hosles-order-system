@@ -346,18 +346,13 @@ function toLocalDateStr(dateStr){
         return y+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0");
       }
     }
-    // ISO format: "2026-12-06T05:47:51.000Z"
-    // Apps Script en-IN locale on server gives ISO sometimes
-    // "2026-12-06" = Apps stored Indian date 12/6 as yyyy-dd-mm (WRONG ISO)
-    // So we must treat ISO parts as: yyyy - day - month (swapped!)
     if(dateStr.indexOf("T") > -1){
       const isoPart = dateStr.split("T")[0];
       const p = isoPart.split("-");
       if(p.length===3){
         const y=parseInt(p[0]);
-        const part2=parseInt(p[1]); // this is actually DAY in Indian date
-        const part3=parseInt(p[2]); // this is actually MONTH in Indian date
-        // Swap: treat p[1] as day, p[2] as month
+        const part2=parseInt(p[1]);
+        const part3=parseInt(p[2]);
         return y+"-"+String(part3).padStart(2,"0")+"-"+String(part2).padStart(2,"0");
       }
     }
@@ -414,7 +409,6 @@ function setStatusFilter(status, btn){
 
 function applyFilters(){
   let filtered=[...allOrders];
-  // Date filter
   const today=todayStr(), yesterday=yesterdayStr(), weekStart=weekStartStr();
   const customDate=document.getElementById("customDate").value;
   if(activeDateFilter==='today'){
@@ -426,7 +420,6 @@ function applyFilters(){
   } else if(activeDateFilter==='custom'&&customDate){
     filtered=filtered.filter(o=>toLocalDateStr(o["Date"]||"")===customDate);
   }
-  // Status filter
   if(activeStatusFilter!=='All') filtered=filtered.filter(o=>o["Status"]===activeStatusFilter);
   window._currentFiltered = filtered;
   renderOrders(filtered);
@@ -483,7 +476,7 @@ function downloadSummary(){
   .total-row td{background:#E1F5EE;font-weight:700;font-size:12.5px}
   .grand{display:flex;justify-content:space-between;align-items:center;background:#000;color:#fff;padding:8px 12px;margin-top:8px;font-size:15px;font-weight:700}
   .footer-note{margin-top:14px;font-size:10px;color:#777;text-align:center}
-  @media print{ body{padding:6mm} @page{size:A4;margin:8mm} }
+  @media print{ body{padding:8mm} @page{size:A4;margin:10mm} }
 </style>
 </head>
 <body>
@@ -524,7 +517,6 @@ async function loadOrders(){
     const d=await apiCall({action:"getOrders"});
     if(d.success){
       allOrders=(d.orders||[]).reverse();
-      // Debug: log first few dates
       console.log("Total orders:", allOrders.length);
       console.log("Today:", todayStr());
       allOrders.slice(0,3).forEach(o=>{
@@ -538,12 +530,8 @@ async function loadOrders(){
 }
 
 function getAmt(o){
-  // Sheet columns: Order ID, Date, Salesman, Customer Name, Customer Phone, Items, Total Amount, Status, Notes
-  // "Total Amount" is column G (index 6 in 0-based object values)
   const vals=Object.values(o);
-  // Index 6 = Total Amount
   if(vals[6]!==undefined && vals[6]!==""){const v=parseFloat(vals[6]);if(!isNaN(v))return v;}
-  // Fallback: try by key name
   for(const k of Object.keys(o)){
     if(k.trim()==="Total Amount"||k.trim()==="totalAmount"){
       const v=parseFloat(o[k]);if(!isNaN(v))return v;
@@ -573,18 +561,15 @@ function renderOrders(orders){
     const niceTime=dateParts[1]||"";
     const amt = getAmt(o);
     const amtStr = Math.round(amt).toLocaleString("en-IN");
-    // Store order in global for bill access
     window._orderCache = window._orderCache||{};
     window._orderCache[o["Order ID"]] = o;
     const card=document.createElement("div");
     card.className="order-card";
     card.style.cursor="pointer";
     card.onclick=function(e){
-      // Don't open detail if clicking on action buttons
       if(e.target.closest(".order-actions")) return;
       openOrderDetail(o["Order ID"]);
     };
-    // Build card without inline JSON to avoid HTML breaking
     const body = document.createElement("div"); body.className="order-body";
     body.innerHTML=`
       <div class="order-row1">
@@ -757,8 +742,8 @@ async function deleteProduct(id){
 /* ---- BILL - MEET ENTERPRISE FORMAT ---- */
 async function generateBill(order){
   const{jsPDF}=window.jspdf;
-  const doc=new jsPDF({unit:"mm",format:"a5",orientation:"portrait"});
-  const PW=148, PH=210, ML=8, MR=8, MW=PW-ML-MR;
+  const doc=new jsPDF({unit:"mm",format:"a4",orientation:"portrait"});
+  const PW=210, PH=297, ML=12, MR=12, MW=PW-ML-MR;
 
   function setT(r,g,b){doc.setTextColor(r,g,b);}
   function resetT(){doc.setTextColor(0,0,0);}
@@ -774,9 +759,6 @@ async function generateBill(order){
   // Parse items
   const rawItems=(order["Items"]||"").split(" | ");
   const items=[];
-  // Keep Gujarati item names as-is (only clean symbols/whitespace).
-  // Gujarati text is drawn via an offscreen canvas (Noto Sans Gujarati font)
-  // so it renders correctly in the PDF instead of getting transliterated.
   function sanitize(str){
     if(!str) return "Item";
     str = str.replace(/₹/g,"Rs.").replace(/–/g,"-").replace(/—/g,"-");
@@ -785,11 +767,8 @@ async function generateBill(order){
     str = str.replace(/^[\s,.()\-]+|[\s,.()\-]+$/g,"");
     return str || "Item";
   }
-  // Renders text containing non-ASCII (Gujarati) characters to a PNG using a
-  // canvas, so jsPDF (which can't draw Gujarati glyphs natively) can place it
-  // as an image. Returns {data, w, h} where w/h are the canvas pixel size.
   async function gujImg(str, fontPx){
-    fontPx = fontPx || 42;
+    fontPx = fontPx || 70;
     const fontSpec = "600 "+fontPx+"px 'Noto Sans Gujarati'";
     try{ await document.fonts.load(fontSpec, str); }catch(e){}
     const canvas=document.createElement("canvas");
@@ -812,7 +791,6 @@ async function generateBill(order){
       items.push({name:sanitize(m[1].trim()),qty,rate,amt});}
   });
 
-  // Look up MRP for each item from the products list (matched by name)
   let mrpMap={};
   try{
     const pd=await apiCall({action:"getProducts"});
@@ -823,11 +801,9 @@ async function generateBill(order){
   items.forEach(item=>{ item.mrp = mrpMap[item.name] || 0; });
 
   const grandTotal=getAmt(order);
-  // Fix date display - handle all formats
   let dateRaw = "";
   const rawDate = order["Date"] || "";
   if(rawDate.indexOf("T") > -1 || rawDate.indexOf("Z") > -1){
-    // ISO format: 2026-12-06T05:47:51.000Z
     const dt = new Date(rawDate);
     if(!isNaN(dt)){
       dateRaw = String(dt.getDate()).padStart(2,"0")+"/"+String(dt.getMonth()+1).padStart(2,"0")+"/"+dt.getFullYear();
@@ -857,36 +833,34 @@ async function generateBill(order){
   }catch(e){}
 
   // ===== PAGE MANAGEMENT =====
-  const PAGE_BOTTOM = PH - 14; // 14mm bottom margin
-  const rowH = 6;
-  // How much space the footer needs (outstanding + signatory section)
-  const FOOTER_H = 30;
+  const PAGE_BOTTOM = PH - 14;
+  const rowH = 10;
+  const FOOTER_H = 42;
 
   function needNewPage(spaceNeeded){
     return (y + spaceNeeded) > PAGE_BOTTOM;
   }
 
-  // Columns for A5
   const C={
-    sn:   {x:ML,      w:6},
-    name: {x:ML+6,    w:50},
-    qty:  {x:ML+56,   w:10},
-    rate: {x:ML+66,   w:16},
-    mrp:  {x:ML+82,   w:12},
-    amt:  {x:ML+94,   w:MW-94},
+    sn:   {x:ML,      w:9},
+    name: {x:ML+9,    w:82},
+    qty:  {x:ML+91,   w:18},
+    rate: {x:ML+109,  w:24},
+    mrp:  {x:ML+133,  w:20},
+    amt:  {x:ML+153,  w:MW-153},
   };
   function cx(col){return C[col].x+C[col].w-1;}
   function lx(col){return C[col].x+1;}
   function mx(col){return C[col].x+C[col].w/2;}
 
   function drawTableHeader(yy){
-    doc.setFillColor(230,230,230);doc.rect(ML,yy-1,MW,6,"F");
-    t("Sn.",     lx("sn"),   yy+2, 6.5, true);
-    t("Item",    lx("name"), yy+2, 6.5, true);
-    tc("Qty",    mx("qty"),  yy+2, 6.5, true);
-    tr("Rate",   cx("rate"), yy+2, 6.5, true);
-    tc("MRP",    mx("mrp"),  yy+2, 6.5, true);
-    tr("Amount", cx("amt"),  yy+2, 6.5, true);
+    doc.setFillColor(230,230,230);doc.rect(ML,yy-1,MW,10,"F");
+    t("Sn.",     lx("sn"),   yy+3, 10, true);
+    t("Item",    lx("name"), yy+3, 10, true);
+    tc("Qty",    mx("qty"),  yy+3, 10, true);
+    tr("Rate",   cx("rate"), yy+3, 10, true);
+    tc("MRP",    mx("mrp"),  yy+3, 10, true);
+    tr("Amount", cx("amt"),  yy+3, 10, true);
     yy+=5; hline(yy,0.5); yy+=2;
     return yy;
   }
@@ -895,8 +869,8 @@ async function generateBill(order){
     doc.addPage();
     let yy=8;
     hline(yy,0.7); yy+=2;
-    t("MEET ENTERPRISE", ML, yy+4, 11, true); yy+=8;
-    setT(80,80,80);t("Invoice: "+invNo+"  |  "+custName+"  |  Continued...", ML, yy, 6);resetT(); yy+=4;
+    t("MEET ENTERPRISE", ML, yy+5, 14, true); yy+=10;
+    setT(80,80,80);t("Invoice: "+invNo+"  |  "+custName+"  |  Continued...", ML, yy, 8);resetT(); yy+=5;
     hline(yy,0.7); yy+=3;
     yy = drawTableHeader(yy);
     return yy;
@@ -907,24 +881,22 @@ async function generateBill(order){
   // ===== HEADER =====
   const headerTop=y;
   hline(y,0.7); y+=2;
-  t("MEET ENTERPRISE", ML, y+4, 13, true); y+=9;
-  setT(80,80,80);t("SECTOR-24, GANDHINAGAR, GUJARAT", ML, y, 6.5);resetT(); y+=4;
-  setT(80,80,80);t("Phone : 9429301154 / 6352341144", ML, y, 6.5);resetT(); y+=3;
+  t("MEET ENTERPRISE", ML, y+5, 16, true); y+=11;
+  setT(80,80,80);t("SECTOR-24, GANDHINAGAR, GUJARAT", ML, y, 8);resetT(); y+=5;
+  setT(80,80,80);t("Phone : 9429301154 / 6352341144", ML, y, 8);resetT(); y+=4;
   hline(y,0.7);
-  // vertical divider in the middle of the header block
   doc.setLineWidth(0.7);doc.setDrawColor(0,0,0);doc.line(PW/2,headerTop,PW/2,y);
-  // Right side of header: buyer/shop info
-  t("TO: "+custName, PW/2+4, headerTop+5, 9, true);
-  if(custAddress){ setT(80,80,80); t(custAddress, PW/2+4, headerTop+5+5, 6.5); resetT(); }
-  if(custPhone){ setT(80,80,80); t("Ph: "+custPhone, PW/2+4, headerTop+5+10, 6.5); resetT(); }
+  t("TO: "+custName, PW/2+4, headerTop+6, 11, true);
+  if(custAddress){ setT(80,80,80); t(custAddress, PW/2+4, headerTop+6+6, 8); resetT(); }
+  if(custPhone){ setT(80,80,80); t("Ph: "+custPhone, PW/2+4, headerTop+6+12, 8); resetT(); }
   y+=4;
 
   // ===== SUPPLIER + INVOICE INFO =====
-  t("INVOICE NO : "+invNo,  ML,      y, 7.5, true);
-  tr("DATE : "+dateRaw,     ML+MW,   y, 7.5, true);
+  t("INVOICE NO : "+invNo,  ML,      y, 9.5, true);
+  tr("DATE : "+dateRaw,     ML+MW,   y, 9.5, true);
   y+=5;
-  t("SALESMAN : "+salesman, ML,      y, 7.5);
-  tr("PHONE : 9429301154 / 6352341144",  ML+MW,   y, 7.5);
+  t("SALESMAN : "+salesman, ML,      y, 9.5);
+  tr("PHONE : 9429301154 / 6352341144",  ML+MW,   y, 9.5);
   y+=4;
   hline(y,0.7); y+=3;
 
@@ -936,36 +908,33 @@ async function generateBill(order){
   for(let i=0;i<items.length;i++){
     const item=items[i];
 
-    // Check if this row + footer will fit; if not, start new page
-    // (for last few rows also ensure footer fits on same page as totals)
     const isLastRows = (i >= items.length - 1);
     const spaceNeeded = rowH + (isLastRows ? FOOTER_H + 14 : 0);
     if(needNewPage(spaceNeeded)){
       y = addContinuationPage();
     }
 
-    if(i%2===0){doc.setFillColor(248,250,248);doc.rect(ML,y-1,MW,rowH,"F");}
+    if(i%2===0){doc.setFillColor(248,250,248);doc.rect(ML,y-1,MW,rowH+1,"F");}
     const cy2=y+rowH/2-1;
-    const nameStr=item.name.length>30?item.name.substring(0,30):item.name;
-    t((i+1)+".",         lx("sn"),   cy2, 7);
+    const nameStr=item.name.length>45?item.name.substring(0,45):item.name;
+    t((i+1)+".",         lx("sn"),   cy2, 11.5);
     if(hasGujarati(nameStr)){
-      const img=await gujImg(nameStr,42);
-      let targetH=3.0, targetW=img.w/img.h*targetH;
+      const img=await gujImg(nameStr,70);
+      let targetH=5.5, targetW=img.w/img.h*targetH;
       const maxW=C["name"].w-2;
       if(targetW>maxW){ targetW=maxW; targetH=img.h/img.w*targetW; }
       doc.addImage(img.data,"PNG",lx("name"),cy2-targetH/2,targetW,targetH);
     } else {
-      t(nameStr,         lx("name"), cy2, 7);
+      t(nameStr,         lx("name"), cy2, 11.5);
     }
-    tc(item.qty,         mx("qty"),  cy2, 7);
-    tr(item.rate.toFixed(2), cx("rate"), cy2, 7);
-    tc(item.mrp?item.mrp.toFixed(2):"-", mx("mrp"),  cy2, 7);
-    tr(item.amt.toFixed(2), cx("amt"), cy2, 7);
+    tc(item.qty,         mx("qty"),  cy2, 11.5);
+    tr(item.rate.toFixed(2), cx("rate"), cy2, 11.5);
+    tc(item.mrp?item.mrp.toFixed(2):"-", mx("mrp"),  cy2, 11.5);
+    tr(item.amt.toFixed(2), cx("amt"), cy2, 11.5);
     totalQty+=item.qty; totalAmt+=item.amt;
     y+=rowH;
   }
 
-  // If totals + footer won't fit, add new page
   if(needNewPage(FOOTER_H + 14)){
     y = addContinuationPage();
   }
@@ -973,18 +942,18 @@ async function generateBill(order){
   hline(y,0.5); y+=2;
 
   // ===== TOTALS ROW =====
-  doc.setFillColor(230,230,230);doc.rect(ML,y-1,MW,6,"F");
-  t("Items: "+items.length,  lx("sn"),   y+2, 7, true);
-  tc("Qty: "+totalQty,       ML+MW/2,    y+2, 7, true);
-  tr(totalAmt.toFixed(2),    cx("amt"),  y+2, 7, true);
+  doc.setFillColor(230,230,230);doc.rect(ML,y-1,MW,10,"F");
+  t("Items: "+items.length,  lx("sn"),   y+3, 11.5, true);
+  tc("Qty: "+totalQty,       ML+MW/2,    y+3, 11.5, true);
+  tr(totalAmt.toFixed(2),    cx("amt"),  y+3, 11.5, true);
   y+=6; hline(y,0.7); y+=3;
 
   // ===== OUTSTANDING =====
-  t("OUTSTANDING : Rs. "+grandTotal.toFixed(2), ML, y, 8, true);
-  tr("For, MEET ENTERPRISE", ML+MW, y, 7.5);
+  t("OUTSTANDING : Rs. "+grandTotal.toFixed(2), ML, y, 10, true);
+  tr("For, MEET ENTERPRISE", ML+MW, y, 9.5);
   y+=10;
   dline(y); y+=4;
-  tr("(Authorised Signatory)", ML+MW, y, 7);
+  tr("(Authorised Signatory)", ML+MW, y, 9);
   y+=4; hline(y,0.7);
 
   doc.save("Bill_"+invNo+"_"+(order["Customer Name"]||"order").replace(/ /g,"_")+".pdf");
@@ -1064,7 +1033,7 @@ async function saveStockUpdate(){
 
 /* ---- ORDER DETAIL MODAL ---- */
 let currentDetailOrderId = null;
-let editItems = []; // {name, qty, rate}
+let editItems = [];
 
 function parseOrderItems(itemsStr){
   const items = [];
@@ -1151,7 +1120,6 @@ function renderEditItems(){
   const total = editItems.reduce((s,i)=>s+(i.qty*i.rate),0);
   document.getElementById("odEditTotal").textContent = total.toLocaleString("en-IN");
 
-  // Add "add item" button at the end
   c.innerHTML += `<button onclick="editItems.push({name:'',qty:1,rate:0});renderEditItems()"
     style="width:100%;background:var(--gl);color:var(--gd);border:none;padding:9px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'Hind',sans-serif;font-size:13px;margin-top:4px">+ Item Jodo</button>`;
 }
