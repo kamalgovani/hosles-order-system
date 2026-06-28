@@ -523,7 +523,7 @@ function renderProductGrid(list){
            onclick="event.stopPropagation()"
            onchange="updateCardPrice('${escapeHtml(String(p.id))}',this.value)"
            title="Price tap karke badlo" />`
-      : `<span class="prod-card-price">&#8377;${priceVal.toLocaleString("en-IN")}</span>`;
+      : `<span class="prod-card-price">₹${priceVal.toLocaleString("en-IN")}</span>`;
     let bottom;
     if(oos){
       bottom="";
@@ -551,7 +551,6 @@ function renderProductGrid(list){
   renderSelectedSummary();
 }
 
-/* ====== FIX: +10 / -10 functions ====== */
 function incQty(id){
   const p=products.find(x=>String(x.id)===String(id));
   if(!p) return;
@@ -585,7 +584,6 @@ function decQtyBy(id, n){
   renderProductGrid(currentGridList());
   calcTotal();
 }
-/* ====== END FIX ====== */
 
 function updateCardPrice(id, val){
   const p=products.find(x=>String(x.id)===String(id));
@@ -595,7 +593,6 @@ function updateCardPrice(id, val){
   calcTotal();
 }
 
-// Event delegation for grid clicks
 document.addEventListener("DOMContentLoaded",()=>{
   const grid=document.getElementById("prodGrid");
   if(grid){
@@ -604,12 +601,10 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(!card || card.classList.contains("oos")) return;
       const id=card.getAttribute("data-id");
       const action=e.target.getAttribute("data-action");
-      /* ====== FIX: handle plus10 and minus10 ====== */
       if(action==="plus"||action==="add"){ incQty(id); }
       else if(action==="plus10"){ incQtyBy(id,10); }
       else if(action==="minus"){ decQty(id); }
       else if(action==="minus10"){ decQtyBy(id,10); }
-      /* ====== END FIX ====== */
       else if(!action){
         const p=products.find(x=>String(x.id)===String(id));
         if(p && !(p.qty>0)) incQty(id);
@@ -632,13 +627,13 @@ function renderSelectedSummary(){
     return `<div class="selected-summary-row">
       <span>${escapeHtml(p.name)} × ${p.qty}</span>
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="font-size:11px;color:#999">&#8377;</span>
+        <span style="font-size:11px;color:#999">₹</span>
         <input class="sum-price-input" type="number" min="0" step="0.01"
           data-pid="${escapeHtml(String(p.id))}"
           value="${parseFloat(p.price)||0}"
           onchange="updateSummaryPrice('${escapeHtml(String(p.id))}',this.value)"
           title="Price badlo" />
-        <span style="font-size:12px;color:var(--muted)">=&nbsp;&#8377;${sub.toLocaleString("en-IN")}</span>
+        <span style="font-size:12px;color:var(--muted)">=&nbsp;₹${sub.toLocaleString("en-IN")}</span>
       </span>
     </div>`;
   }).join("");
@@ -682,13 +677,13 @@ function renderManualItems(){
     const block=document.createElement("div");
     block.className="item-block";
     block.innerHTML=`
-      <div class="item-block-header"><span class="item-num">&#9999;&#65039; Custom Item</span><button class="remove-btn" onclick="removeManualItem(${item.id})">&#215; Hatao</button></div>
+      <div class="item-block-header"><span class="item-num">✏️ Custom Item</span><button class="remove-btn" onclick="removeManualItem(${item.id})">✕ Hatao</button></div>
       <div class="field"><label>Item Naam</label><input type="text" id="mname_${item.id}" placeholder="Naam" value="${escapeHtml(item.name)}" oninput="updateManualItem(${item.id},'name',this.value)"/></div>
       <div class="two-col" style="margin-top:10px">
         <div class="field"><label>Quantity</label><input type="number" id="mqty_${item.id}" placeholder="1" value="${item.qty}" min="1" oninput="updateManualItem(${item.id},'qty',this.value)"/></div>
-        <div class="field"><label>Rate (&#8377;)</label><input type="number" id="mrate_${item.id}" placeholder="0" value="${item.rate||''}" min="0" oninput="updateManualItem(${item.id},'rate',this.value)"/></div>
+        <div class="field"><label>Rate (₹)</label><input type="number" id="mrate_${item.id}" placeholder="0" value="${item.rate||''}" min="0" oninput="updateManualItem(${item.id},'rate',this.value)"/></div>
       </div>
-      ${subtotal>0?`<div class="item-subtotal">= &#8377;${subtotal.toLocaleString('en-IN')}</div>`:''}`;
+      ${subtotal>0?`<div class="item-subtotal">= ₹${subtotal.toLocaleString('en-IN')}</div>`:''}`;
     c.appendChild(block);
   });
   if(savedId){
@@ -717,7 +712,7 @@ function calcTotal(){
   const prodTotal=products.reduce((s,p)=>s+((p.qty||0)*(parseFloat(p.price)||0)),0);
   const manualTotal=manualItems.reduce((s,i)=>s+((i.qty||0)*(i.rate||0)),0);
   const t=prodTotal+manualTotal;
-  document.getElementById("totalDisplay").textContent="&#8377;"+t.toLocaleString("en-IN");
+  document.getElementById("totalDisplay").innerHTML="₹"+t.toLocaleString("en-IN");
   return t;
 }
 
@@ -743,8 +738,8 @@ async function submitOrder(){
   const customerPhone=phone||(shop?shop.phone:"")||"";
   const total=calcTotal();
   const itemsText=[
-    ...selectedProducts.map(p=>`${p.name} x${p.qty} @&#8377;${p.price} = &#8377;${((p.qty||0)*(parseFloat(p.price)||0)).toLocaleString("en-IN")}`),
-    ...validManualItems.map(i=>`${i.name} x${i.qty} @&#8377;${i.rate} = &#8377;${(i.qty*i.rate).toLocaleString("en-IN")}`)
+    ...selectedProducts.map(p=>`${p.name} x${p.qty} @₹${p.price} = ₹${((p.qty||0)*(parseFloat(p.price)||0)).toLocaleString("en-IN")}`),
+    ...validManualItems.map(i=>`${i.name} x${i.qty} @₹${i.rate} = ₹${(i.qty*i.rate).toLocaleString("en-IN")}`)
   ].join(" | ");
   const btn=document.getElementById("submitBtn");
   btn.disabled=true;btn.textContent="Submit ho raha hai...";
@@ -756,8 +751,8 @@ async function submitOrder(){
       document.getElementById("successScreen").style.display="block";
       document.getElementById("successOrderId").textContent="Order ID: "+d.orderId;
       window.scrollTo(0,0);
-    } else {showError("Kuch galat hua, dobara try karo.");btn.disabled=false;btn.textContent="&#10003; Order Submit Karo";}
-  }catch(e){showError("Internet check karo aur dobara try karo.");btn.disabled=false;btn.textContent="&#10003; Order Submit Karo";}
+    } else {showError("Kuch galat hua, dobara try karo.");btn.disabled=false;btn.textContent="✓ Order Submit Karo";}
+  }catch(e){showError("Internet check karo aur dobara try karo.");btn.disabled=false;btn.textContent="✓ Order Submit Karo";}
 }
 
 function resetForm(){
@@ -777,7 +772,7 @@ function resetForm(){
   renderManualItems();
   if(products.length===0) addManualItem();
   document.getElementById("submitBtn").disabled=false;
-  document.getElementById("submitBtn").textContent="&#10003; Order Submit Karo";
+  document.getElementById("submitBtn").textContent="✓ Order Submit Karo";
   calcTotal();
   window.scrollTo(0,0);
 }
